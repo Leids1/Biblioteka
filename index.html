@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Список замечательных игр</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap" rel="stylesheet">
+  <style>
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    body {
+      animation: fadeIn 1.5s ease-in-out forwards;
+      background-image: url(https://iili.io/KBVdvQp.webp);
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      position: relative;
+      font-family: 'Rubik Mono One', sans-serif;
+      margin: 0;
+      transition: background-image 0.6s ease-in-out;
+    }
+    .overlay {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      border-radius: 15px;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3),
+                  0 0 20px rgba(255, 255, 255, 0.2),
+                  0 0 40px rgba(255, 255, 255, 0.1),
+                  0 0 60px rgba(255, 255, 255, 0.05);
+    }
+    .images-container {
+      position: absolute;
+      top: 160px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding-left: 48px;
+      padding-right: 48px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .image-with-text {
+      width: calc(30% - 20px);
+      text-align: center;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+                  0 0 40px rgba(255, 255, 255, 0.1),
+                  0 0 60px rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease-in-out;
+      position: relative;
+      cursor: pointer;
+    }
+    .image-with-text:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255,255,255,0.4),
+                  0 0 45px rgba(255,255,255,0.2);
+    }
+    .image-with-text img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      margin-bottom: 5px;
+    }
+    .image-with-text h3 {
+      color: #fff;
+      font-size: 18px;
+      margin: 5px 0;
+    }
+    .image-with-text p.description {
+      color: white;
+      font-size: 14px;
+      padding: 8px;
+      margin: 0;
+      max-height: 3.6em; /* ~2 строки */
+      overflow: hidden;
+      transition: max-height 0.6s ease;
+    }
+    .image-with-text:hover p.description {
+      max-height: 100vh; /* плавное раскрытие */
+    }
+    .background-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 15px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .background-controls img {
+      width: 30px;
+      height: 30px;
+      margin-right: 10px;
+    }
+    .background-controls button {
+      background-color: transparent;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: transform 0.3s ease;
+    }
+    .background-controls button:hover {
+      transform: scale(1.2);
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+      z-index: 1001;
+      display: none;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+    .popup.show {
+      display: block;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .popup img {
+      max-width: 100%;
+      max-height: 275px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .popup h2 {
+      margin: 10px 0;
+      font-size: 22px;
+    }
+    .popup p {
+      font-size: 14px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .popup a {
+      display: block;
+      background: linear-gradient(45deg, #ff6a00, #ee0979);
+      color: white;
+      font-size: 18px;
+      margin: 10px 0;
+      padding: 12px;
+      text-decoration: none;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 100, 100, 0.6);
+      transition: all 0.3s ease-in-out;
+    }
+    .popup a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 100, 100, 0.9);
+    }
+    .popup button {
+      background-color: #ff6347;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .popup button:hover {
+      background-color: #ff4500;
+    }
+    .overlay-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.65);
+      z-index: 1000;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .overlay-background.show {
+      display: block;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="overlay">
+  <h1>Рай пубертатника:</h1>
+</div>
+
+<div class="images-container">
+  <div class="image-with-text" onclick="showGamePopup(
+      'Kemomimi Treasure Hunters!',
+      'https://iili.io/KBVdNyJ.jpg',
+      'Жизнь брата и сестры резко меняется, когда найденный матерью гриб становится причиной неожиданной болезни. Путешествие к аптекарю открывает новые испытания: жадный врач требует непомерную сумму за спасение любимой женщины. Брат и сестра объединяют усилия, рискуя жизнью, чтобы найти сокровище и купить драгоценное лекарство.',
+      'https://www.dropbox.com/scl/fi/cwdovgrxr3rqkr45ovdh5/Kemomimi_Treasure_Hunters.7z?rlkey=phckvfh69dilgs6enz7mclk5k&st=qq6mndz7&dl=0',
+      'https://www.dropbox.com/scl/fi/cwdovgrxr3rqkr45ovdh5/Kemomimi_Treasure_Hunters.7z?rlkey=phckvfh69dilgs6enz7mclk5k&st=qq6mndz7&dl=0'
+    )">
+    <img src="https://iili.io/KBVdNyJ.jpg" alt="Игра №1">
+    <h3>Kemomimi Treasure Hunters!</h3>
+    <p class="description">Жизнь брата и сестры резко меняется, когда найденный матерью гриб становится причиной неожиданной болезни...</p>
+  </div>
+
+  <div class="image-with-text" onclick="showGamePopup(
+      'My Dystopian Robot Girlfriend',
+      'https://iili.io/KBVdW41.jpg',
+      'В антиутопическом будущем 2026 году рынок секс-ботов процветал. Их численность быстро превзошла всю автомобильную промышленность, и золотой век мира казался ближе, чем когда-либо прежде. Увы, месяц спустя международный скандал между США и Китаем вылился во всемирный запрет секс-ботов. Жизнь никогда не была бы прежней.',
+      'https://incontinentcell.itch.io/factorial-omega',
+      'https://incontinentcell.itch.io/factorial-omega'
+    )">
+    <img src="https://iili.io/KBVdW41.jpg" alt="Игра №2">
+    <h3>My Dystopian Robot Girlfriend</h3>
+    <p class="description">В антиутопическом будущем 2026 году рынок секс-ботов процветал. Их численность быстро превзошла всю...</p>
+  </div>
+
+  <div class="image-with-text" onclick="showGamePopup(
+      'LonaRPG',
+      'https://iili.io/KBVdkjR.jpg',
+      'Помогите Лоне в этом жестоком и неумолимом мире и сбегите с острова Ноер! Управляйте ее судьбой и решите ее судьбу!',
+      'https://eccma417.fanbox.cc',
+      'https://example.com/download3'
+
+    )">
+    <img src="https://iili.io/KBVdkjR.jpg" alt="Игра №3">
+    <h3>LonaRPG</h3>
+    <p class="description">Помогите Лоне в этом жестоком и неумолимом мире и сбегите с острова Ноер...</p>
+  </div>
+  <div class="image-with-text">
+  <img src="https://iili.io/KBvR4Fj.jpg" alt="KoboldKare">
+  <a href="#" onclick="showGamePopup('ССЫЛКА_НА_КАРТИНКУ','Полное описание игры','ССЫЛКА_НА_СТРАНИЦУ','ССЫЛКА_НА_СКАЧИВАНИЕ')">KoboldKare</a>
+  <p class="description">KoboldKare - это симулятор фермерства, но вместо производства продуктов вы производите голых кобольдов! Это FPS-игра, в которой есть прыжки, серфинг, тримпинг, а также секс..</p>
+</div>
+
+</div>
+
+<div class="background-controls">
+  <img src="https://iili.io/KBWAzvf.png" alt="Значок фона">
+  <button onclick="changeBackground(1)">1</button>
+  <button onclick="changeBackground(2)">2</button>
+  <button onclick="changeBackground(3)">3</button>
+  <button onclick="changeBackground(4)">4</button>
+</div>
+
+<div class="overlay-background" onclick="closeAllPopups()"></div>
+
+<!-- Попап игры -->
+<div class="popup" id="gamePopup">
+  <h2 id="gameTitle"></h2>
+  <img id="gameImage" src="" alt="Игра">
+  <p id="gameDescription"></p>
+  <a id="pageLink" href="#" target="_blank">Страница игры</a>
+  <a id="downloadLink" href="#" target="_blank">Загрузить игру</a>
+  <button onclick="closeGamePopup()">Закрыть</button>
+</div>
+
+<!-- Попап подсказки -->
+<div class="popup" id="downloadInfoPopup">
+  <p>Для скачивания игры нажмите на карточку игры.</p>
+  <button onclick="closeDownloadInfoPopup()">Закрыть</button>
+</div>
+
+<!-- Попап 18+ -->
+<div class="popup" id="ageRestrictionPopup">
+  <p>Все игры на сайте предназначены для лиц старше 18 лет.</p>
+  <button onclick="closeAgeRestrictionPopup()">Закрыть</button>
+</div>
+
+<script>
+  function changeBackground(index) {
+    const backgrounds = [
+      'url(https://iili.io/KBVdvQp.webp)',
+      'url(https://iili.io/KBXHzAJ.jpg)',
+      'url(https://iili.io/KBWDQAQ.jpg)',
+      'url(https://iili.io/KBWQttt.jpg)'
+    ];
+    document.body.style.backgroundImage = backgrounds[index - 1];
+  }
+
+  function showGamePopup(title, imageUrl, description, pageLink, downloadLink) {
+    document.getElementById('gameTitle').textContent = title;
+    document.getElementById('gameImage').src = imageUrl;
+    document.getElementById('gameDescription').textContent = description;
+    document.getElementById('pageLink').href = pageLink;
+    document.getElementById('downloadLink').href = downloadLink;
+
+    document.getElementById('gamePopup').classList.add('show');
+    document.querySelector('.overlay-background').classList.add('show');
+  }
+
+  function closeGamePopup() {
+    document.getElementById('gamePopup').classList.remove('show');
+    hideOverlayIfNoPopups();
+  }
+
+  function showDownloadInfoPopup() {
+    document.getElementById('downloadInfoPopup').classList.add('show');
+    document.querySelector('.overlay-background').classList.add('show');
+  }
+
+  function closeDownloadInfoPopup() {
+    document.getElementById('downloadInfoPopup').classList.remove('show');
+    hideOverlayIfNoPopups();
+  }
+
+  function showAgeRestrictionPopup() {
+    document.getElementById('ageRestrictionPopup').classList.add('show');
+    document.querySelector('.overlay-background').classList.add('show');
+  }
+
+  function closeAgeRestrictionPopup() {
+    document.getElementById('ageRestrictionPopup').classList.remove('show');
+    hideOverlayIfNoPopups();
+    showDownloadInfoPopup();
+  }
+
+  function closeAllPopups() {
+    document.querySelectorAll('.popup').forEach(p => p.classList.remove('show'));
+    document.querySelector('.overlay-background').classList.remove('show');
+  }
+
+  function hideOverlayIfNoPopups() {
+    const popups = document.querySelectorAll('.popup');
+    let anyOpen = false;
+    popups.forEach(p => {
+      if (p.classList.contains('show')) {
+        anyOpen = true;
+      }
+    });
+    if (!anyOpen) {
+      document.querySelector('.overlay-background').classList.remove('show');
+    }
+  }
+
+  window.onload = function() {
+    showAgeRestrictionPopup();
+  };
+</script>
+</body>
+</html>
