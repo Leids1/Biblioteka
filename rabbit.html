@@ -219,6 +219,7 @@
       justify-content: center;
       min-height: 70vh;
       position: relative; /* Для абсолютного позиционирования .floating-plus */
+      
     }
     .click-counter-bg {
       background: rgba(24, 24, 28, 0.85);
@@ -442,6 +443,38 @@
       vertical-align: middle;
     }
     @media (max-width: 600px) {
+      .overlay {
+        padding: 1px 2px 1px 2px;
+        min-height: 0;
+        height: 36px;
+      }
+      .library-title {
+        font-size: 18px;
+      }
+      .top-back-btn-row {
+        height: 36px !important;
+      }
+      .shop-block {
+        position: static;
+        left: unset;
+        top: unset;
+        transform: none;
+        width: 100%;
+        max-width: 98vw;
+        min-width: 0;
+        margin-bottom: 18px;
+        box-sizing: border-box;
+      }
+      .main-flex {
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        min-height: unset;
+      }
+      .center-container {
+        min-height: 0;
+        width: 100%;
+      }
       .rabbit-btn, .rabbit-img {
         width: 90vw;
         height: 90vw;
@@ -452,15 +485,64 @@
         padding: 10px 16px;
         min-width: 80px;
         min-height: 40px;
+        margin-bottom: 18px;
       }
       .click-counter {
         font-size: 2.2rem;
+      }
+      .shop-title {
+        font-size: 1.1rem;
+      }
+      .shop-item-title {
+        font-size: 1rem;
+      }
+      .shop-item-desc,
+      .shop-item-price {
+        font-size: 0.95rem;
+      }
+      .shop-item-btn {
+        font-size: 0.95rem;
+        padding: 7px 12px;
       }
     }
     @media (max-width: 900px) {
       .main-flex { flex-direction: column; align-items: center; gap: 24px; }
       .shop-block { width: 100%; max-width: 98vw; min-width: 0; }
     }
+
+    .orbit-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;   /* радиус вращения */
+  height: 600px;
+  margin-left: -300px; /* половина ширины */
+  margin-top: -300px;  /* половина высоты */
+  border-radius: 50%;
+  pointer-events: none; /* не мешает клику */
+  animation: orbit-rotate 12s linear infinite;
+  z-index: 0; /* чтобы было позади кнопки */
+}
+
+.orbit-item {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  top: 50%;
+  left: 50%;
+  margin: -32px;
+}
+
+.orbit-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: invert(1);
+}
+
+@keyframes orbit-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
   </style>
 </head>
 <body>
@@ -503,11 +585,11 @@
         <div class="click-counter" id="clickCounter">0</div>
       </div>
       <button class="rabbit-btn" id="rabbitBtn" aria-label="Кликни кролика">
-        <img src="image/robbit11.png" alt="Rabbit" class="rabbit-img" id="rabbitImg">
+        <img src="image/robbit111.png" alt="Rabbit" class="rabbit-img" id="rabbitImg">
       </button>
     </div>
   </div>
-
+<div class="orbit-container" id="orbitContainer"></div>
 <script>
   const counter = document.getElementById('clickCounter');
   const rabbitBtn = document.getElementById('rabbitBtn');
@@ -555,19 +637,41 @@
   const buyAutoclickBtn = document.getElementById('buyAutoclickBtn');
   const shopPriceAutoclick = document.getElementById('shopPriceAutoclick');
   const autoclickLevelDesc = document.getElementById('autoclickLevel');
+const orbitContainer = document.getElementById('orbitContainer');
+
+function updateOrbit() {
+  orbitContainer.innerHTML = ''; // очищаем
+  const count = autoclickLevel;
+  const radius = 250; // расстояние от центра
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * 2 * Math.PI;
+    const x = radius * Math.cos(angle);
+    const y = radius * Math.sin(angle);
+
+    const item = document.createElement('div');
+    item.className = 'orbit-item';
+    // Поворачиваем так, чтобы левая сторона картинки смотрела в центр
+    const deg = angle * 180 / Math.PI;
+    item.style.transform = `translate(${x}px, ${y}px) rotate(${deg + 180}deg)`;
+    item.innerHTML = `<img src="image/ss.png" alt="orb">`;
+
+    orbitContainer.appendChild(item);
+  }
+}
 
   // --- Загрузка прогресса при старте ---
   loadProgress();
 
   function updateShopButton() {
-    buyPlus1Btn.disabled = clicks < shopPricePlus1;
-    shopPriceEl.textContent = shopPricePlus1;
-    plus1LevelDesc.textContent = plus1Level;
-    buyAutoclickBtn.disabled = clicks < autoclickPrice;
-    shopPriceAutoclick.textContent = autoclickPrice;
-    autoclickLevelDesc.textContent = autoclickLevel;
-    counter.textContent = clicks;
-  }
+  buyPlus1Btn.disabled = clicks < shopPricePlus1;
+  shopPriceEl.textContent = shopPricePlus1;
+  plus1LevelDesc.textContent = plus1Level;
+  buyAutoclickBtn.disabled = clicks < autoclickPrice;
+  shopPriceAutoclick.textContent = autoclickPrice;
+  autoclickLevelDesc.textContent = autoclickLevel;
+  counter.textContent = clicks;
+  updateOrbit(); // теперь всегда обновляем орбиту
+}
 
   function showFloatingPlus(amount) {
     // Размер кнопки
@@ -585,8 +689,7 @@
 
     // Координаты относительно centerContainer
     const relX = randX - containerRect.left;
-    const relY = randY - containerRect.top;
-
+    const relY = randY - containerRect.top;В
     // Рандомный размер
     const fontSize = Math.round(32 + Math.random() * 38); // 32-70px
 
@@ -641,6 +744,7 @@
             showFloatingPlus(1);
           }
           saveProgress();
+          updateOrbit()
         }
       }, 1000);
     }
@@ -650,6 +754,7 @@
     clicks += clickPower;
     counter.textContent = clicks;
     updateShopButton();
+     updateOrbit();
     showFloatingPlus(clickPower);
     saveProgress();
   });
@@ -671,7 +776,9 @@
 
   // Инициализация
   updateShopButton();
+  updateOrbit(); // добавлено для появления картинок сразу
 </script>
 </body>
 </html>
+
 
