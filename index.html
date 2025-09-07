@@ -59,7 +59,15 @@
       border-radius: 0 0 14px 14px;
     }
     .overlay h1 { margin:0; font-size: 26px; color: #fff; }
-    .filter-bar { display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center; /* центрируем кнопки платформ */
+      flex-wrap: wrap;
+      width: 100%;
+      position: relative; /* для абсолютного позиционирования FAQ */
+    }
     .filter-bar button {
       background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
       border: 1px solid rgba(255,255,255,0.08);
@@ -77,6 +85,28 @@
       background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
       /* убрана transform и box-shadow */
       color: #e6dfff;
+    }
+
+    .faq-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      /* убираем margin-right: auto; */
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .faq-btn:hover {
+      background: #3a3a3a;
     }
 
     /* ---------------- grid / cards ---------------- */
@@ -202,6 +232,7 @@
       padding:12px; border-radius:10px;
       text-decoration:none; color:white; font-weight:600;
       background: linear-gradient(45deg,#ff6a00,#ee0979);
+      box
       box-shadow: 0 8px 26px rgba(238,100,120,0.12);
     }
     .popup .close-btn {
@@ -324,6 +355,17 @@
   <div class="overlay" role="banner">
     <h1>Библиотека:</h1>
     <div class="filter-bar" role="tablist" aria-label="Фильтр по платформам">
+      <button type="button" class="faq-btn" onclick="openPopup('faqPopup')" title="FAQ" aria-label="FAQ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+             class="lucide lucide-info">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4"/>
+          <path d="M12 8h.01"/>
+        </svg>
+        FAQ
+      </button>
       <button type="button" onclick="filterGames('all')">Все</button>
       <button type="button" onclick="filterGames('pc')">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal" style="vertical-align:middle;"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
@@ -334,7 +376,7 @@
         Mobile
       </button>
       <button type="button" onclick="filterGames('vr')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rectangle-goggles-icon lucide-rectangle-goggles" style="vertical-align:middle;"><path d="M20 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-1.6-.8l-1.6-2.13a1 1 0 0 0-1.6 0L9.6 17.2A2 2 0 0 1 8 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rectangle-goggles-icon lucide-rectangle-gогgles" style="vertical-align:middle;"><path d="M20 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-1.6-.8l-1.6-2.13a1 1 0 0 0-1.6 0L9.6 17.2A2 2 0 0 1 8 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
         VR
       </button>
       <button type="button" id="togglePaidBtn" onclick="togglePaidGames()" title="Скрыть платные игры" aria-pressed="false" style="padding:8px 12px; display:flex; align-items:center; gap:6px;">
@@ -348,6 +390,7 @@
         </span>
       </button>
     </div>
+    
   </div>
 
   <!-- grid -->
@@ -375,7 +418,7 @@
 
     <!-- My Dystopian Robot Girlfriend -->
     <div class="image-with-text"
-         data-platforms="pc mobile"
+         data-platforms="pc mobile demo"
          data-title="My Dystopian Robot Girlfriend"
          data-image="image/KBVdW41.jpg"
          data-description="В антиутопическом будущем 2026 году рынок секс-ботов процветал. Их численность быстро превзошла всю автомобильную промышленность, и золотой век мира казался ближе, чем когда-либо прежде. Увы, месяц спустя международный скандал между США и Китаем вылился во всемирный запрет секс-ботов. Жизнь никогда не была бы прежней."
@@ -389,6 +432,7 @@
         <div class="platforms" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
         </div>
         <p class="description">В антиутопическом будущем 2026 году рынок секс-ботов процветал. Их численность быстро превзошла всю...</p>
       </div>
@@ -396,7 +440,7 @@
 
     <!-- LonaRPG -->
     <div class="image-with-text"
-         data-platforms="pc"
+         data-platforms="pc demo"
          data-title="LonaRPG"
          data-image="image/KBVdkjR.jpg"
          data-description="Помогите Лоне в этом жестоком и неумолимом мире и сбегите с острова Ноер! Управляйте ее судьбой и решите ее судьбу!"
@@ -409,6 +453,7 @@
         <h3 class="card-title">LonaRPG</h3>
         <div class="platforms" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
         </div>
         <p class="description">Помогите Лоне в этом жестоком и неумолимом мире и сбегите с острова Ноер...</p>
       </div>
@@ -457,7 +502,7 @@
 
     <!-- REC -->
     <div class="image-with-text"
-         data-platforms="pc mobile"
+         data-platforms="pc mobile demo"
          data-title="Rec"
          data-image="image/KnDgvR9.png"
          data-description="Вы бедный студент университета. Однажды вы найдете волшебную камеру, которая решит все ваши финансовые проблемы! Единственная проблема в том, что вам нужно снять что-то непристойное."
@@ -471,13 +516,14 @@
         <div class="platforms" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
         </div>
         <p class="description">Вы бедный студент университета. Однажды вы найдете волшебную камеру, которая решит все ваши финансовые проблемы! Единственная проблема в том, что вам нужно снять что-то непристойное.</p>
       </div>
     </div>
 
     <div class="image-with-text"
-         data-platforms="pc paid"
+         data-platforms="pc paid demo"
          data-title="Anomalous Coffee Machine"
          data-image="image/KCmVnLl.webp"
          data-description="Аномальная кофемашина это уникальная игра в стиле интерактивного симулятора визуального романа, в которой вы встречаетесь с загадочной девушкой, которая по неизвестным причинам просит вас использовать и исследовать ее загадочный и, казалось бы, аномальный автомат по продаже кофе (например, SCP-294)!"
@@ -497,7 +543,7 @@
     </div>
 
     <div class="image-with-text"
-         data-platforms="pc paid"
+         data-platforms="pc paid demo"
          data-title="Anomalous Coffee Machine 2"
          data-image="image/KCm4s5J.jpg"
          data-description="Аномальная кофемашина 2 это странный интерактивный визуальный роман и вымышленный симулятор, в котором вы стоите напротив загадочной девушки и скромного автомата по продаже кофе, способного производить все, что вы печатаете, каким бы невозможным это ни казалось. Она не говорит вам, кто она, почему она там, и в чем дело с кофемашиной. Все, что она просит, это ввести любое слово и нажать кнопку."
@@ -511,6 +557,7 @@
         <div class="platforms" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dollar-sign-icon lucide-circle-dollar-sign"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
         </div>
         <p class="description">Аномальная кофемашина 2 это странный интерактивный визуальный роман и вымышленный симулятор, в котором вы стоите напротив загадочной девушки и скромного автомата по продаже кофе, способного производить все, что вы печатаете, каким бы невозможным это ни казалось. Она не говорит вам, кто она, почему она там, и в чем дело с кофемашиной. Все, что она просит, это ввести любое слово и нажать кнопку.</p>
       </div>
@@ -528,6 +575,51 @@
 
   <!-- overlay background -->
   <div class="overlay-background" id="overlayBg" aria-hidden="true"></div>
+
+  <!-- FAQ popup -->
+  <div class="popup" id="faqPopup" role="dialog" aria-modal="true">
+    <h2>FAQ</h2>
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- ПК -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+          <line x1="2" x2="22" y1="20" y2="20"/>
+        </svg>
+        <span>— <b>PC</b>: Игра для Windows/Linux/Mac (персональный компьютер)</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- Mobile -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+          <path d="M12 18h.01"/>
+        </svg>
+        <span>— <b>Mobile</b>: Игра для мобильных устройств (Android/iOS)</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- VR -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          <path d="M20 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-1.6-.8l-1.6-2.13a1 1 0 0 0-1.6 0L9.6 17.2A2 2 0 0 1 8 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
+        </svg>
+        <span>— <b>VR</b>: Игра поддерживает виртуальную реальность</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- Платная -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+          <path d="M12 18V6"/>
+        </svg>
+        <span>— <b>Платная</b>: Для запуска требуется покупка или лицензия</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+  <!-- Demo -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
+        <span>— <b>Demo</b>: Игра в демо-версии (не закончена разработчиком, ознакомительный вариант)</span>
+      </div>
+    </div>
+    <button class="close-btn" onclick="closePopup('faqPopup')">Закрыть</button>
+  </div>
 
 <!-- game popup -->
 <div class="popup" id="gamePopup" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
@@ -825,4 +917,5 @@
   </script>
 </body>
 </html>
+
 
