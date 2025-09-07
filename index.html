@@ -944,11 +944,14 @@
 
     // Анимированные частицы на фоне
     (function() {
-      const canvas = document.getElementById('animated-bg-canvas');
+      const canvas = document.createElement('canvas');
+      canvas.id = 'animated-bg-canvas';
+      document.body.prepend(canvas);
       const ctx = canvas.getContext('2d');
       let w = window.innerWidth, h = window.innerHeight;
       let particles = [];
       const PARTICLE_COUNT = Math.max(32, Math.floor(w * h / 18000));
+
       function resize() {
         w = window.innerWidth;
         h = window.innerHeight;
@@ -959,28 +962,55 @@
       resize();
 
       function randomColor() {
-        // Фиолетовый + синий + бирюзовый
         const colors = ['#a259ff', '#1de9b6', '#3f51b5', '#7c4dff'];
         return colors[Math.floor(Math.random() * colors.length)];
       }
 
-      function createParticle() {
-        ctx.save();
-        ctx.fillStyle = randomColor();
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 24;
-        ctx.fill();
-        ctx.restore();
-
-        p.x += p.dx;
-        p.y += p.dy;
-        // wrap around
-        if (p.x < -p.r) p.x = w + p.r;
-        if (p.x > w + p.r) p.x = -p.r;
-        if (p.y < -p.r) p.y = h + p.r;
-        if (p.y > h + p.r) p.y = -p.r;
+      function createParticles() {
+        particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const r = 8 + Math.random() * 10;
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            dx: (Math.random() - 0.5) * 0.7,
+            dy: (Math.random() - 0.5) * 0.7,
+            r,
+            color: randomColor()
+          });
+        }
       }
-      requestAnimationFrame(animate);
+      createParticles();
+
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 24;
+          ctx.globalAlpha = 0.18;
+          ctx.fill();
+          ctx.restore();
+
+          p.x += p.dx;
+          p.y += p.dy;
+          // wrap around
+          if (p.x < -p.r) p.x = w + p.r;
+          if (p.x > w + p.r) p.x = -p.r;
+          if (p.y < -p.r) p.y = h + p.r;
+          if (p.y > h + p.r) p.y = -p.r;
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+      window.addEventListener('resize', () => {
+        resize();
+        createParticles();
+      });
     })();
   </script>
 </body>
