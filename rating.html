@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Рейтинг</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://iili.io/KClTnwl.png" sizes="128x128">
+  <style>
+    /* Кнопки и попапы как в index.html */
+    .filter-bar button,
+    .faq-btn,
+    .rating-btn {
+      background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition:
+        background 0.18s cubic-bezier(.4,1,.7,1),
+        box-shadow .18s cubic-bezier(.4,1,.7,1),
+        color .18s cubic-bezier(.4,1,.7,1),
+        transform 0.18s cubic-bezier(.4,1,.7,1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      text-decoration: none;
+      z-index: 2;
+    }
+    .filter-bar button:hover,
+    .faq-btn:hover,
+    .rating-btn:hover {
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #e6dfff;
+    }
+    .faq-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .faq-btn:hover {
+      background: #3a3a3a;
+    }
+    .popup {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%,-50%) scale(.98);
+      z-index: 100;
+      background: rgba(8,8,8,0.95);
+      border-radius: 14px;
+      max-width: 800px;
+      width: 98vw;
+      max-height: 84vh;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      display:none;
+      opacity:0;
+      z-index: 100;
+      box-sizing: border-box;
+      --popup-glow: 0 0 0 1.5px #7c4dff, 0 0 9px 1.5px #a259ff, 0 0 18px 1.5px #6a4fb3;
+      box-shadow: var(--popup-glow), 0 4.5px 13.5px rgba(0,0,0,0.5);
+      animation: popup-border-glow 4s linear infinite;
+      overflow: auto;
+    }
+    .popup.show { display:block; animation: popupShow .32s ease both; opacity:1; }
+    .popup.hide { animation: popupHide .28s ease both; }
+    .popup .close-btn {
+      margin-top:12px;
+      background:#ff6347;
+      border:none;
+      padding:10px 14px;
+      border-radius:8px;
+      color:white;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .overlay-background {
+      position: fixed; inset:0;
+      background: rgba(0,0,0,0.7);
+      z-index: 90;
+      display:none;
+      opacity: 0;
+      transition: opacity .32s ease;
+    }
+    .overlay-background.show { display:block; opacity:1; }
+    @keyframes popup-border-glow {
+      0% {
+        --popup-glow: 0 0 0 1.5px #7c4dff, 0 0 9px 1.5px #a259ff, 0 0 18px 1.5px #6a4fb3;
+      }
+      33% {
+        --popup-glow: 0 0 0 1.5px #a259ff, 0 0 9px 1.5px #6a4fb3, 0 0 18px 1.5px #7c4dff;
+      }
+      66% {
+        --popup-glow: 0 0 0 1.5px #6a4fb3, 0 0 9px 1.5px #7c4dff, 0 0 18px 1.5px #a259ff;
+      }
+      100% {
+        --popup-glow: 0 0 0 1.5px #7c4dff, 0 0 9px 1.5px #a259ff, 0 0 18px 1.5px #6a4fb3;
+      }
+    }
+    /* Стили для компактного списка рейтинга */
+    .compact-game-list {
+      max-width: 700px;
+      margin: 32px auto 0 auto;
+      padding: 0 12px 60px 12px;
+      list-style: none;
+      counter-reset: game;
+    }
+    .compact-game-list li {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.45));
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      margin-bottom: 18px;
+      padding: 10px 18px 10px 0;
+      font-size: 20px;
+      position: relative;
+      min-height: 60px;
+      transition: transform .18s, box-shadow .18s;
+      cursor: pointer;
+    }
+    /* Более насыщенные градиенты для топ-3 */
+    .compact-game-list li:nth-child(1) {
+      background: linear-gradient(90deg, rgba(255,245,0,0.22) 0%, rgba(255,200,0,0.18) 100%) !important;
+      box-shadow: 0 0 0 3px rgba(255,245,0,0.38), 0 0 18px 0 rgba(255,245,0,0.32), 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .compact-game-list li:nth-child(2) {
+      background: linear-gradient(90deg, rgba(240,240,240,0.18) 0%, rgba(200,200,200,0.15) 100%) !important;
+      box-shadow: 0 0 0 3px rgba(240,240,240,0.28), 0 0 18px 0 rgba(240,240,240,0.22), 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .compact-game-list li:nth-child(3) {
+      background: linear-gradient(90deg, rgba(255,180,40,0.18) 0%, rgba(210,100,10,0.13) 100%) !important;
+      box-shadow: 0 0 0 3px rgba(255,180,40,0.28), 0 0 18px 0 rgba(255,180,40,0.22), 0 6px 18px rgba(0,0,0,0.5);
+    }
+    /* Цвет свечения при наведении для топ-3 (уменьшено на 1.35) */
+    .compact-game-list li:hover {
+      transform: translateY(-3px) scale(1.02);
+    }
+    .compact-game-list li:nth-child(1):hover {
+      box-shadow: 0 0 10.37px 1.48px #ffcc00, 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .compact-game-list li:nth-child(2):hover {
+      box-shadow: 0 0 10.37px 1.48px #c0c0c0, 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .compact-game-list li:nth-child(3):hover {
+      box-shadow: 0 0 10.37px 1.48px #cd7f32, 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .compact-game-list li:not(:nth-child(-n+3)):hover {
+      box-shadow: 0 0 5.18px #a259ff, 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .compact-game-list li img {
+      width: 54px;
+      height: 54px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-right: 18px;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,0.08);
+      box-shadow: 0 2px 8px rgba(162,89,255,0.10);
+    }
+    .compact-game-list li .game-title {
+      font-size: 21px;
+      color: #fff;
+      font-weight: 500;
+      margin: 0;
+      flex: 1;
+      line-height: 1.2;
+    }
+    .compact-game-list li .game-number {
+      font-size: 22px;
+      /* Цвет по умолчанию для остальных */
+      color: #a259ff;
+      font-family: 'Rubik Mono One', monospace;
+      margin-right: 18px;
+      min-width: 32px;
+      text-align: right;
+      opacity: 0.85;
+    }
+    .compact-game-list li:nth-child(1) .game-number {
+      color: #ffe600;
+      text-shadow: 0 0 6px #ffe60099;
+    }
+    .compact-game-list li:nth-child(2) .game-number {
+      color: #e0e0e0;
+      text-shadow: 0 0 6px #e0e0e099;
+    }
+    .compact-game-list li:nth-child(3) .game-number {
+      color: #ffb82a;
+      text-shadow: 0 0 6px #ffb82a99;
+    }
+    @media (max-width: 600px) {
+      .compact-game-list li {
+        font-size: 17px;
+        padding: 8px 8px 8px 0;
+      }
+      .compact-game-list li img {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+      }
+      .compact-game-list li .game-title {
+        font-size: 17px;
+      }
+      .compact-game-list li .game-number {
+        font-size: 17px;
+        margin-right: 10px;
+      }
+    }
+    /* ---------------- basic animations & fonts ---------------- */
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popupShow { from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+    @keyframes popupHide { from { transform: translate(-50%, -50%) scale(1); opacity: 1; } to { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } }
+    @keyframes popup-border-move {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    html,body { height:100%; margin:0; }
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Rubik', Arial, sans-serif;
+      animation: fadeIn 1s ease;
+      background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(image/KBVdvQp.webp);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      transition: background-image 0.6s ease-in-out, opacity 0.25s ease;
+      color: white;
+      font-size: 19px;
+    }
+    .overlay {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.55);
+      padding: 18px 12px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      border-radius: 0 0 14px 14px;
+    }
+    .overlay h1 { margin:0; font-size: 26px; color: #fff; }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      position: relative;
+    }
+    .faq-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .faq-btn:hover {
+      background: #3a3a3a;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay" role="banner">
+    <h1>Рейтинг:</h1>
+    <div class="filter-bar" role="tablist" aria-label="Фильтр по платформам">
+      <button type="button" class="library-btn rating-btn" onclick="window.location.href='index.html'" title="Библиотека" aria-label="Библиотека" style="position:absolute;right:0;top:50%;transform:translateY(-50%);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 7V17A2 2 0 0 0 4 19H20A2 2 0 0 0 22 17V7"/><path d="M12 19V5"/><path d="M19 7V17"/><path d="M5 7V17"/></svg>
+        <span style="font-family:'Rubik',Arial,sans-serif;font-weight:500;letter-spacing:0.5px;">Библиотека</span>
+      </button>
+      <button type="button" class="faq-btn" onclick="openPopup('faqPopup')" title="FAQ" aria-label="FAQ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span style="font-family:'Rubik',Arial,sans-serif;font-weight:500;letter-spacing:0.5px;">FAQ</span>
+      </button>
+    </div>
+  </div>
+  <div class="images-container" id="imagesContainer">
+    <ol class="compact-game-list">
+      <li><span class="game-number">1</span><img src="image/KBVdNyJ.jpg" alt="Kemomimi Treasure Hunters!"><span class="game-title">Kemomimi Treasure Hunters!</span></li>
+      <li><span class="game-number">2</span><img src="image/KBVdW41.jpg" alt="My Dystopian Robot Girlfriend"><span class="game-title">My Dystopian Robot Girlfriend</span></li>
+      <li><span class="game-number">3</span><img src="image/KBVdkjR.jpg" alt="LonaRPG"><span class="game-title">LonaRPG</span></li>
+      <li><span class="game-number">4</span><img src="image/KBvR4Fj.jpg" alt="KoboldKare"><span class="game-title">KoboldKare</span></li>
+      <li><span class="game-number">5</span><img src="image/KCofkiJ.jpg" alt="Koikatsu!"><span class="game-title">Koikatsu!</span></li>
+      <li><span class="game-number">6</span><img src="image/KnDgvR9.png" alt="Rec"><span class="game-title">🔴Rec</span></li>
+      <li><span class="game-number">7</span><img src="image/KCmVnLl.webp" alt="Anomalous Coffee Machine"><span class="game-title">Anomalous Coffee Machine</span></li>
+      <li><span class="game-number">8</span><img src="image/KCm4s5J.jpg" alt="Anomalous Coffee Machine 2"><span class="game-title">Anomalous Coffee Machine 2</span></li>
+    </ol>
+  </div>
+  <!-- FAQ popup и overlay -->
+  <div class="popup" id="faqPopup" role="dialog" aria-modal="true">
+    <h2 style="margin-top:0;font-size:22px;color:#ffd;">FAQ по рейтингу</h2>
+    <div style="font-size:18px;line-height:1.5;color:#eee;">
+      <ul style="padding-left:18px;margin:0 0 18px 0;">
+        <li>В этом разделе собраны лучшие игры по мнению редакции и пользователей.</li>
+        <li>Порядок игр в списке отражает их популярность и качество, но не является абсолютным.</li>
+        <li>Вы можете кликнуть по любой игре для подробной информации.</li>
+        <li>Если хотите предложить свою игру для рейтинга — напишите нам!</li>
+      </ul>
+      <div style="margin-top:10px;color:#a259ff;font-size:16px;">Спасибо за интерес к нашему рейтингу!</div>
+    </div>
+    <button class="close-btn" onclick="closePopup('faqPopup')" style="margin-top:18px;background:#ff6347;border:none;padding:10px 14px;border-radius:8px;color:white;cursor:pointer;font-weight:600;">Закрыть</button>
+  </div>
+  <div class="overlay-background" id="overlayBg" aria-hidden="true"></div>
+  <script>
+    function openPopup(id) {
+      const popup = document.getElementById(id);
+      const overlay = document.getElementById('overlayBg');
+      if (!popup) return;
+      popup.style.display = 'block';
+      popup.classList.remove('hide');
+      requestAnimationFrame(() => {
+        popup.classList.add('show');
+        overlay.classList.add('show');
+        overlay.style.display = 'block';
+      });
+    }
+    function closePopup(id) {
+      const popup = document.getElementById(id);
+      const overlay = document.getElementById('overlayBg');
+      if (!popup) return;
+      if (popup.classList.contains('hide')) return;
+      popup.classList.remove('show');
+      popup.classList.add('hide');
+      const onAnimEnd = (e) => {
+        if (e.target !== popup) return;
+        popup.removeEventListener('animationend', onAnimEnd);
+        popup.classList.remove('hide');
+        popup.style.display = 'none';
+        overlay.classList.remove('show');
+        overlay.style.display = 'none';
+      };
+      popup.addEventListener('animationend', onAnimEnd);
+    }
+    document.getElementById('overlayBg').addEventListener('click', function() {
+      const faqPopup = document.getElementById('faqPopup');
+      if (faqPopup && faqPopup.classList.contains('show')) {
+        closePopup('faqPopup');
+      }
+    });
+  </script>
+</body>
+</html>
