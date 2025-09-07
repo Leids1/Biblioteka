@@ -46,9 +46,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 0;
       background: rgba(0,0,0,0.55);
-      padding: 18px 12px;
+      padding: 1px 2px 1px 2px;
       backdrop-filter: blur(4px);
       box-shadow: 0 6px 18px rgba(0,0,0,0.5);
       border-radius: 0 0 14px 14px;
@@ -62,6 +62,55 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .top-back-btn-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 0;
+      margin-top: 0;
+      position: relative;
+      z-index: 2;
+    }
+    .back-btn {
+      background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition:
+        background 0.18s cubic-bezier(.4,1,.7,1),
+        box-shadow .18s cubic-bezier(.4,1,.7,1),
+        color .18s cubic-bezier(.4,1,.7,1),
+        transform 0.18s cubic-bezier(.4,1,.7,1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      text-decoration: none;
+      font-family: inherit;
+      font-weight: 500;
+      margin-bottom: 0;
+      margin-top: 0;
+      box-shadow: 0 2px 12px #a259ff22;
+    }
+    .back-btn:hover {
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #e6dfff;
+      text-decoration: none;
+    }
+    .back-btn svg {
+      margin-right: 4px;
+      vertical-align: middle;
     }
     .filter-bar {
       display: flex;
@@ -71,7 +120,7 @@
       flex-wrap: wrap;
       width: 100%;
       position: relative;
-      min-height: 48px;
+      min-height: 24px;
     }
     .platform-buttons {
       display: flex;
@@ -417,11 +466,15 @@
 <body>
   <!-- header -->
   <div class="overlay" role="banner">
-    <a href="index.html" class="back-btn" title="Назад к играм">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="15 18 9 12 15 6"/></svg>
-      Назад
-    </a>
-    <h1 class="library-title">Жмякалка</h1>
+    <div style="position:relative;width:100%;height:40px;">
+      <div class="library-title">Жмякалка</div>
+      <div class="top-back-btn-row" style="height:40px;align-items:flex-end;">
+        <a href="index.html" class="back-btn" title="Назад к играм" style="margin-bottom:2px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="15 18 9 12 15 6"/></svg>
+          Назад
+        </a>
+      </div>
+    </div>
     <div class="filter-bar" style="position:relative;">
     </div>
   </div>
@@ -430,15 +483,15 @@
     <div class="shop-block">
       <div class="shop-title">магазин</div>
       <div class="shop-item" id="shopItemPlus1">
-        <div class="shop-item-title">+1 к клику</div>
-        <div class="shop-item-desc">Увеличивает количество кликов за нажатие на 1</div>
+        <div class="shop-item-title">Опытность владения</div>
+        <div class="shop-item-desc">Увеличивает количество семёнов за клик</div>
         <div class="shop-item-price">Цена: <span id="shopPricePlus1">100</span> кликов</div>
         <button class="shop-item-btn" id="buyPlus1Btn">Купить</button>
         <div class="shop-item-desc" id="plus1LevelDesc">Уровень: <span id="plus1Level">0</span></div>
       </div>
       <div class="shop-item" id="shopItemAutoclick">
-        <div class="shop-item-title">Автокликер</div>
-        <div class="shop-item-desc">Кликает автоматически +1 раз в секунду. Можно улучшать.</div>
+        <div class="shop-item-title">Да ничего у меня не подтекает</div>
+        <div class="shop-item-desc">Автоматически освобождает семёнов каждую секунду</div>
         <div class="shop-item-price">Цена: <span id="shopPriceAutoclick">555</span> кликов</div>
         <button class="shop-item-btn" id="buyAutoclickBtn">Купить</button>
         <div class="shop-item-desc" id="autoclickLevelDesc">Уровень: <span id="autoclickLevel">0</span></div>
@@ -459,9 +512,36 @@
   const counter = document.getElementById('clickCounter');
   const rabbitBtn = document.getElementById('rabbitBtn');
   const centerContainer = document.getElementById('centerContainer');
-  let clicks = 0;
 
-  // Магазин: +1 к клику
+  // --- Сохранение и загрузка прогресса ---
+  function saveProgress() {
+    const data = {
+      clicks,
+      clickPower,
+      shopPricePlus1,
+      plus1Level,
+      autoclickLevel,
+      autoclickPrice
+    };
+    localStorage.setItem('rabbitClickerProgress', JSON.stringify(data));
+  }
+
+  function loadProgress() {
+    const data = localStorage.getItem('rabbitClickerProgress');
+    if (!data) return;
+    try {
+      const obj = JSON.parse(data);
+      if (typeof obj.clicks === 'number') clicks = obj.clicks;
+      if (typeof obj.clickPower === 'number') clickPower = obj.clickPower;
+      if (typeof obj.shopPricePlus1 === 'number') shopPricePlus1 = obj.shopPricePlus1;
+      if (typeof obj.plus1Level === 'number') plus1Level = obj.plus1Level;
+      if (typeof obj.autoclickLevel === 'number') autoclickLevel = obj.autoclickLevel;
+      if (typeof obj.autoclickPrice === 'number') autoclickPrice = obj.autoclickPrice;
+    } catch(e) {}
+  }
+
+  // ...existing code variables...
+  let clicks = 0;
   let clickPower = 1;
   let shopPricePlus1 = 100;
   let plus1Level = 0;
@@ -469,13 +549,15 @@
   const shopPriceEl = document.getElementById('shopPricePlus1');
   const plus1LevelDesc = document.getElementById('plus1Level');
 
-  // Магазин: Автокликер
   let autoclickLevel = 0;
   let autoclickPrice = 555;
   let autoclickInterval = null;
   const buyAutoclickBtn = document.getElementById('buyAutoclickBtn');
   const shopPriceAutoclick = document.getElementById('shopPriceAutoclick');
   const autoclickLevelDesc = document.getElementById('autoclickLevel');
+
+  // --- Загрузка прогресса при старте ---
+  loadProgress();
 
   function updateShopButton() {
     buyPlus1Btn.disabled = clicks < shopPricePlus1;
@@ -484,6 +566,7 @@
     buyAutoclickBtn.disabled = clicks < autoclickPrice;
     shopPriceAutoclick.textContent = autoclickPrice;
     autoclickLevelDesc.textContent = autoclickLevel;
+    counter.textContent = clicks;
   }
 
   function showFloatingPlus(amount) {
@@ -537,6 +620,7 @@
       shopPricePlus1 = Math.round(shopPricePlus1 * 1.8);
     }
     updateShopButton();
+    saveProgress();
   });
 
   buyAutoclickBtn.addEventListener('click', function() {
@@ -546,16 +630,17 @@
     autoclickLevel++;
     autoclickPrice = Math.round(autoclickPrice * 1.6);
     updateShopButton();
+    saveProgress();
     if (autoclickLevel === 1) {
       autoclickInterval = setInterval(() => {
         if (autoclickLevel > 0) {
           clicks += autoclickLevel;
           counter.textContent = clicks;
           updateShopButton();
-          // Анимация для каждого автоклика
           for (let i = 0; i < autoclickLevel; i++) {
             showFloatingPlus(1);
           }
+          saveProgress();
         }
       }, 1000);
     }
@@ -566,7 +651,23 @@
     counter.textContent = clicks;
     updateShopButton();
     showFloatingPlus(clickPower);
+    saveProgress();
   });
+
+  // --- Восстановление автокликера после загрузки, если был куплен ---
+  if (autoclickLevel > 0 && !autoclickInterval) {
+    autoclickInterval = setInterval(() => {
+      if (autoclickLevel > 0) {
+        clicks += autoclickLevel;
+        counter.textContent = clicks;
+        updateShopButton();
+        for (let i = 0; i < autoclickLevel; i++) {
+          showFloatingPlus(1);
+        }
+        saveProgress();
+      }
+    }, 1000);
+  }
 
   // Инициализация
   updateShopButton();
