@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>КЛАЦ-КЛАЦ-КЛАЦ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://iili.io/KClTnwl.png" sizes="128x128">
+  <style>
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popupShow { from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+    @keyframes popupHide { from { transform: translate(-50%, -50%) scale(1); opacity: 1; } to { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } }
+    @keyframes popup-border-move {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    html,body { height:100%; margin:0; }
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Rubik', Arial, sans-serif;
+      animation: fadeIn 1s ease;
+      background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://iili.io/KBVdvQp.webp);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      transition: background-image 0.6s ease-in-out, opacity 0.25s ease;
+      color: white;
+      font-size: 19px;
+    }
+    button {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      will-change: transform, box-shadow;
+      transform: translateZ(0);
+    }
+    .overlay {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.55);
+      padding: 18px 12px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      border-radius: 0 0 14px 14px;
+    }
+    .library-title {
+      margin: 0;
+      font-size: 26px;
+      color: #fff;
+      text-align: center;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      position: relative;
+      min-height: 48px;
+    }
+    .platform-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .filter-bar button,
+    .faq-btn,
+    .rating-btn {
+      background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition:
+        background 0.18s cubic-bezier(.4,1,.7,1),
+        box-shadow .18s cubic-bezier(.4,1,.7,1),
+        color .18s cubic-bezier(.4,1,.7,1),
+        transform 0.18s cubic-bezier(.4,1,.7,1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      text-decoration: none;
+      z-index: 2;
+    }
+    .filter-bar button:hover,
+    .faq-btn:hover,
+    .rating-btn:hover {
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #e6dfff;
+    }
+    .faq-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .faq-btn:hover {
+      background: #3a3a3a;
+    }
+    .rating-btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 10px;
+      background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.18s cubic-bezier(.4,1,.7,1), box-shadow .18s cubic-bezier(.4,1,.7,1), color .18s cubic-bezier(.4,1,.7,1), transform 0.18s cubic-bezier(.4,1,.7,1);
+      z-index: 2;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+    }
+    .rating-btn:hover {
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #e6dfff;
+    }
+    .background-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 60;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background: rgba(0,0,0,0.55);
+      padding:10px;
+      border-radius:12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .background-controls img { width:32px; height:32px; display:block; }
+    .background-controls button { background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+    .background-controls button:hover { transform:scale(1.08); }
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      position: relative; /* Для абсолютного позиционирования .floating-plus */
+    }
+    .click-counter-bg {
+      background: rgba(24, 24, 28, 0.85);
+      border-radius: 18px;
+      padding: 18px 38px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 32px 0 #7c4dff55, 0 1.5px 8px #000a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+      min-height: 56px;
+    }
+    .click-counter {
+      font-family: 'Rubik Mono One', 'Rubik', Arial, sans-serif;
+      font-size: 3.6rem;
+      color: #fff;
+      text-shadow: 0 2px 12px #000, 0 0 8px #a259ff;
+      letter-spacing: 2px;
+      user-select: none;
+      text-align: center;
+    }
+    .rabbit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      outline: none;
+      box-shadow:
+        0 0 0 4px #7c4dff44,
+        0 0 32px 8px #a259ff88,
+        0 0 0 0 #fff0;
+      transition: box-shadow 0.18s cubic-bezier(.4,1,.7,1), transform 0.08s;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      width: 440px;
+      height: 440px;
+      position: relative;
+      z-index: 1;
+      animation: rabbit-glow 3.2s linear infinite;
+    }
+    .rabbit-btn:active {
+      transform: scale(0.96);
+      box-shadow:
+        0 0 0 8px #7c4dff77,
+        0 0 48px 16px #a259ffcc;
+    }
+    @keyframes rabbit-glow {
+      0% {
+        box-shadow:
+          0 0 0 4px #7c4dff44,
+          0 0 32px 8px #a259ff88,
+          0 0 0 0 #fff0;
+      }
+      50% {
+        box-shadow:
+          0 0 0 12px #a259ff55,
+          0 0 64px 24px #7c4dffcc,
+          0 0 0 0 #fff0;
+      }
+      100% {
+        box-shadow:
+          0 0 0 4px #7c4dff44,
+          0 0 32px 8px #a259ff88,
+          0 0 0 0 #fff0;
+      }
+    }
+    .rabbit-img {
+      width: 440px;
+      height: 440px;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+      /* pointer-events: none чтобы клик ловила кнопка */
+      display: block;
+    }
+    .floating-plus {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      color: #fff;
+      font-family: 'Rubik Mono One', 'Rubik', Arial, sans-serif;
+      font-weight: bold;
+      text-shadow: 0 2px 8px #7c4dff, 0 0 2px #000;
+      opacity: 1;
+      will-change: transform, opacity;
+      animation: plus-float 1.1s cubic-bezier(.4,1,.7,1) forwards;
+      z-index: 10;
+      user-select: none;
+    }
+    @keyframes plus-float {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      80% {
+        opacity: 1;
+        transform: translateY(-80px) scale(1.1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-110px) scale(0.9);
+      }
+    }
+.main-flex {
+  display: flex;
+  justify-content: center; /* центрируем кролика */
+  align-items: center;     /* выравниваем по вертикали */
+  width: 100%;
+  min-height: 70vh;
+  position: relative;      /* чтобы магазин можно было поставить абсолютом */
+}
+
+.shop-block {
+  position: absolute;
+  left: 190px;              /* магазин всегда слева */
+  top: 55%;
+  transform: translateY(-50%);
+  background: rgba(24,24,28,0.92);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 #7c4dff33, 0 1.5px 8px #000a;
+  padding: 28px 24px 24px 24px;
+  min-width: 260px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+    .shop-title {
+      font-family: 'Rubik Mono One', 'Rubik', Arial, sans-serif;
+      font-size: 1.5rem;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #7c4dff, 0 0 2px #000;
+      user-select: none;
+    }
+    .shop-item {
+      background: rgba(44,44,60,0.92);
+      border-radius: 12px;
+      padding: 16px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 2px 12px #0004;
+    }
+    .shop-item-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 2px;
+      letter-spacing: 0.5px;
+    }
+    .shop-item-desc {
+      font-size: 1rem;
+      color: #bdbaff;
+      margin-bottom: 2px;
+    }
+    .shop-item-price {
+      font-size: 1rem;
+      color: #ffd700;
+      margin-bottom: 8px;
+    }
+    .shop-item-btn {
+      background: linear-gradient(90deg, #7c4dff 0%, #a259ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.12s;
+      box-shadow: 0 2px 12px #a259ff44;
+      margin-top: 2px;
+    }
+    .shop-item-btn:disabled {
+      background: #444;
+      color: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.7;
+    }
+    .back-btn {
+      background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition:
+        background 0.18s cubic-bezier(.4,1,.7,1),
+        box-shadow .18s cubic-bezier(.4,1,.7,1),
+        color .18s cubic-bezier(.4,1,.7,1),
+        transform 0.18s cubic-bezier(.4,1,.7,1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      text-decoration: none;
+      font-family: inherit;
+      font-weight: 500;
+      margin-bottom: 12px;
+      margin-top: 8px;
+      box-shadow: 0 2px 12px #a259ff22;
+    }
+    .back-btn:hover {
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #e6dfff;
+      text-decoration: none;
+    }
+    .back-btn svg {
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    @media (max-width: 600px) {
+      .rabbit-btn, .rabbit-img {
+        width: 90vw;
+        height: 90vw;
+        max-width: 98vw;
+        max-height: 98vw;
+      }
+      .click-counter-bg {
+        padding: 10px 16px;
+        min-width: 80px;
+        min-height: 40px;
+      }
+      .click-counter {
+        font-size: 2.2rem;
+      }
+    }
+    @media (max-width: 900px) {
+      .main-flex { flex-direction: column; align-items: center; gap: 24px; }
+      .shop-block { width: 100%; max-width: 98vw; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- header -->
+  <div class="overlay" role="banner">
+    <a href="index.html" class="back-btn" title="Назад к играм">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="15 18 9 12 15 6"/></svg>
+      Назад
+    </a>
+    <h1 class="library-title">Жмякалка</h1>
+    <div class="filter-bar" style="position:relative;">
+    </div>
+  </div>
+
+  <div class="main-flex">
+    <div class="shop-block">
+      <div class="shop-title">магазин</div>
+      <div class="shop-item" id="shopItemPlus1">
+        <div class="shop-item-title">+1 к клику</div>
+        <div class="shop-item-desc">Увеличивает количество кликов за нажатие на 1</div>
+        <div class="shop-item-price">Цена: <span id="shopPricePlus1">100</span> кликов</div>
+        <button class="shop-item-btn" id="buyPlus1Btn">Купить</button>
+        <div class="shop-item-desc" id="plus1LevelDesc">Уровень: <span id="plus1Level">0</span></div>
+      </div>
+      <div class="shop-item" id="shopItemAutoclick">
+        <div class="shop-item-title">Автокликер</div>
+        <div class="shop-item-desc">Кликает автоматически +1 раз в секунду. Можно улучшать.</div>
+        <div class="shop-item-price">Цена: <span id="shopPriceAutoclick">555</span> кликов</div>
+        <button class="shop-item-btn" id="buyAutoclickBtn">Купить</button>
+        <div class="shop-item-desc" id="autoclickLevelDesc">Уровень: <span id="autoclickLevel">0</span></div>
+      </div>
+    </div>
+
+    <div class="center-container" id="centerContainer">
+      <div class="click-counter-bg">
+        <div class="click-counter" id="clickCounter">0</div>
+      </div>
+      <button class="rabbit-btn" id="rabbitBtn" aria-label="Кликни кролика">
+        <img src="image/robbit11.png" alt="Rabbit" class="rabbit-img" id="rabbitImg">
+      </button>
+    </div>
+  </div>
+
+<script>
+  const counter = document.getElementById('clickCounter');
+  const rabbitBtn = document.getElementById('rabbitBtn');
+  const centerContainer = document.getElementById('centerContainer');
+  let clicks = 0;
+
+  // Магазин: +1 к клику
+  let clickPower = 1;
+  let shopPricePlus1 = 100;
+  let plus1Level = 0;
+  const buyPlus1Btn = document.getElementById('buyPlus1Btn');
+  const shopPriceEl = document.getElementById('shopPricePlus1');
+  const plus1LevelDesc = document.getElementById('plus1Level');
+
+  // Магазин: Автокликер
+  let autoclickLevel = 0;
+  let autoclickPrice = 555;
+  let autoclickInterval = null;
+  const buyAutoclickBtn = document.getElementById('buyAutoclickBtn');
+  const shopPriceAutoclick = document.getElementById('shopPriceAutoclick');
+  const autoclickLevelDesc = document.getElementById('autoclickLevel');
+
+  function updateShopButton() {
+    buyPlus1Btn.disabled = clicks < shopPricePlus1;
+    shopPriceEl.textContent = shopPricePlus1;
+    plus1LevelDesc.textContent = plus1Level;
+    buyAutoclickBtn.disabled = clicks < autoclickPrice;
+    shopPriceAutoclick.textContent = autoclickPrice;
+    autoclickLevelDesc.textContent = autoclickLevel;
+  }
+
+  function showFloatingPlus(amount) {
+    // Размер кнопки
+    const btnRect = rabbitBtn.getBoundingClientRect();
+    const containerRect = centerContainer.getBoundingClientRect();
+
+    // Рандомная позиция внутри кнопки (отступаем 10% от краёв)
+    const minX = btnRect.left + btnRect.width * 0.10;
+    const maxX = btnRect.left + btnRect.width * 0.90;
+    const minY = btnRect.top + btnRect.height * 0.10;
+    const maxY = btnRect.top + btnRect.height * 0.90;
+
+    const randX = Math.random() * (maxX - minX) + minX;
+    const randY = Math.random() * (maxY - minY) + minY;
+
+    // Координаты относительно centerContainer
+    const relX = randX - containerRect.left;
+    const relY = randY - containerRect.top;
+
+    // Рандомный размер
+    const fontSize = Math.round(32 + Math.random() * 38); // 32-70px
+
+    // Создаём элемент
+    const plus = document.createElement('div');
+    plus.className = 'floating-plus';
+    plus.textContent = `+${amount}`;
+    plus.style.left = relX + 'px';
+    plus.style.top = relY + 'px';
+    plus.style.fontSize = fontSize + 'px';
+
+    // Рандомный небольшой сдвиг по X (для разнообразия)
+    const xShift = (Math.random() - 0.5) * 40; // -20..+20px
+    plus.style.transform = `translateX(${xShift}px)`;
+
+    centerContainer.appendChild(plus);
+
+    // Удаляем после анимации
+    plus.addEventListener('animationend', () => plus.remove());
+  }
+
+  buyPlus1Btn.addEventListener('click', function() {
+    if (clicks < shopPricePlus1) return;
+    clicks -= shopPricePlus1;
+    counter.textContent = clicks;
+    clickPower += 1;
+    plus1Level++;
+    if (shopPricePlus1 === 100) {
+      shopPricePlus1 = 500;
+    } else {
+      shopPricePlus1 = Math.round(shopPricePlus1 * 1.8);
+    }
+    updateShopButton();
+  });
+
+  buyAutoclickBtn.addEventListener('click', function() {
+    if (clicks < autoclickPrice) return;
+    clicks -= autoclickPrice;
+    counter.textContent = clicks;
+    autoclickLevel++;
+    autoclickPrice = Math.round(autoclickPrice * 1.6);
+    updateShopButton();
+    if (autoclickLevel === 1) {
+      autoclickInterval = setInterval(() => {
+        if (autoclickLevel > 0) {
+          clicks += autoclickLevel;
+          counter.textContent = clicks;
+          updateShopButton();
+          // Анимация для каждого автоклика
+          for (let i = 0; i < autoclickLevel; i++) {
+            showFloatingPlus(1);
+          }
+        }
+      }, 1000);
+    }
+  });
+
+  rabbitBtn.addEventListener('click', function(e) {
+    clicks += clickPower;
+    counter.textContent = clicks;
+    updateShopButton();
+    showFloatingPlus(clickPower);
+  });
+
+  // Инициализация
+  updateShopButton();
+</script>
+</body>
+</html>
+
