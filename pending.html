@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Игры на рассмотрении</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://iili.io/KClTnwl.png" sizes="128x128">
+  <style>
+    /* ---------------- basic animations & fonts ---------------- */
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popupShow { from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+    @keyframes popupHide { from { transform: translate(-50%, -50%) scale(1); opacity: 1; } to { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } }
+    @keyframes popup-border-move {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    html,body { height:100%; margin:0; }
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Rubik', Arial, sans-serif;
+      animation: fadeIn 1s ease;
+      background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://iili.io/KBVdvQp.webp);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      transition: background-image 0.6s ease-in-out, opacity 0.25s ease;
+      color: white;
+      font-size: 19px;
+    }
+
+    button {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      will-change: transform, box-shadow;
+      transform: translateZ(0);
+    }
+
+    /* ---------------- header / overlay ---------------- */
+    .overlay {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.55);
+      padding: 18px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      border-radius: 0 0 14px 14px;
+    }
+    .library-title {
+      margin: 0;
+      font-size: 26px;
+      color: #fff;
+      text-align: center;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      position: relative;
+      min-height: 48px;
+    }
+    .platform-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .filter-bar button,
+    .faq-btn,
+    .back-btn {
+      background: linear-gradient(90deg, #18181c 0%, #2a2340 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition:
+        background 0.18s cubic-bezier(.4,1,.7,1),
+        box-shadow .18s cubic-bezier(.4,1,.7,1),
+        color .18s cubic-bezier(.4,1,.7,1),
+        transform 0.18s cubic-bezier(.4,1,.7,1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      text-decoration: none;
+      z-index: 2;
+    }
+    .filter-bar button:hover,
+    .faq-btn:hover,
+    .back-btn:hover {
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #e6dfff;
+    }
+
+    .faq-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .faq-btn:hover {
+      background: #3a3a3a;
+    }
+
+    /* ---------------- grid / cards ---------------- */
+    .images-container {
+      max-width: 1200px;
+      margin: 28px auto;
+      padding: 0 24px 80px 24px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    @media (max-width:1100px) { .images-container { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width:680px) { .images-container { grid-template-columns: 1fr; } }
+
+    .image-with-text {
+      background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.45));
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      transition: transform .25s ease, box-shadow .25s ease;
+      cursor: pointer;
+      display:flex;
+      flex-direction:column;
+      min-height: 320px;
+      position: relative;
+    }
+    .image-with-text:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 0 7px #a259ff, 0 6px 18px rgba(0,0,0,0.5); }
+    .image-with-text img { width:100%; height:200px; object-fit:cover; display:block; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .card-body { padding: 12px 14px 16px 14px; display:flex; flex-direction:column; gap:8px; flex:1; }
+    .card-title { font-size:22px; margin:0; color:#fff; line-height:1.1; }
+    .platforms { display:flex; gap:8px; font-size:21px; align-items:center; }
+    .description {
+      color: #eee;
+      font-size:17px;
+      line-height:1.4;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .game-rating { font-size: 18px; }
+
+    .status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      z-index: 2;
+    }
+    .status-pending {
+      background: linear-gradient(90deg, #ff6b6b 0%, #ffd93d 100%);
+    }
+    .status-review {
+      background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .status-rejected {
+      background: linear-gradient(90deg, #ff4b4b 0%, #ff416c 100%);
+    }
+
+    /* ---------------- background controls ---------------- */
+    .background-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 60;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background: rgba(0,0,0,0.55);
+      padding:10px;
+      border-radius:12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+    .background-controls img { width:32px; height:32px; display:block; }
+    .background-controls button { background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+    .background-controls button:hover { transform:scale(1.08); }
+
+    /* ---------------- popups ---------------- */
+    .overlay-background {
+      position: fixed; inset:0;
+      background: rgba(0,0,0,0.7);
+      z-index: 90;
+      display:none;
+      opacity: 0;
+      transition: opacity .32s ease;
+    }
+    .overlay-background.show { display:block; opacity:1; }
+
+    .popup {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%,-50%) scale(.98);
+      z-index: 100;
+      background: rgba(8,8,8,0.95);
+      border-radius: 14px;
+      max-width: 800px;
+      width: 98vw;
+      max-height: 84vh;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      display:none;
+      opacity:0;
+      z-index: 100;
+      box-sizing: border-box;
+      --popup-glow: 0 0 0 1.5px #7c4dff, 0 0 9px 1.5px #a259ff, 0 0 18px 1.5px #6a4fb3;
+      box-shadow: var(--popup-glow), 0 4.5px 13.5px rgba(0,0,0,0.5);
+      animation: popup-border-glow 4s linear infinite;
+      overflow: auto;
+    }
+    @keyframes popup-border-glow {
+      0% {
+        --popup-glow: 0 0 0 1.5px #7c4dff, 0 0 9px 1.5px #a259ff, 0 0 18px 1.5px #6a4fb3;
+      }
+      33% {
+        --popup-glow: 0 0 0 1.5px #a259ff, 0 0 9px 1.5px #6a4fb3, 0 0 18px 1.5px #7c4dff;
+      }
+      66% {
+        --popup-glow: 0 0 0 1.5px #6a4fb3, 0 0 9px 1.5px #7c4dff, 0 0 18px 1.5px #a259ff;
+      }
+      100% {
+        --popup-glow: 0 0 0 1.5px #7c4dff, 0 0 9px 1.5px #a259ff, 0 0 18px 1.5px #6a4fb3;
+      }
+    }
+    .popup.show { display:block; animation: popupShow .32s ease both; }
+    .popup.hide { animation: popupHide .28s ease both; }
+    .popup img { width:100%; max-height: 360px; object-fit:cover; border-radius:10px; margin-bottom:12px; }
+    .popup h2 { font-size:22px; margin:6px 0; color:#ffd; }
+    .popup p { color:#ddd; font-size:18px; line-height:1.45; text-align:left; }
+    .popup .links { margin-top:12px; display:flex; gap:12px; flex-direction:column; }
+    .popup a.button {
+      display:block; text-align:center;
+      padding:12px; border-radius:10px;
+      text-decoration:none; color:white; font-weight:600;
+      background: linear-gradient(45deg,#ff6a00,#ee0979);
+      box-shadow: 0 8px 26px rgba(238,100,120,0.12);
+    }
+    .popup .close-btn {
+      margin-top:12px;
+      background:#ff6347;
+      border:none;
+      padding:10px 14px;
+      border-radius:8px;
+      color:white;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .popup-content {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      justify-content: center;
+      align-items: stretch;
+      min-height: 420px;
+      position: relative;
+    }
+
+    .curator-comments {
+      flex: 0 0 250px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 12px;
+      color: #ccc;
+      font-size: 14px;
+      line-height: 1.4;
+      overflow-y: auto;
+      height: 100%;
+      align-self: stretch;
+    }
+
+    .game-details {
+      flex: 1;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    }
+
+    @media (max-width: 900px) {
+      .popup-content {
+        flex-direction: column;
+        align-items: center;
+      }
+      .curator-comments {
+        width: 100%;
+        max-width: 500px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { font-size: 18px; }
+      .overlay h1 { font-size: 22px; }
+      .card-title { font-size: 18px; }
+      .description { font-size: 16px; }
+      .platforms { font-size: 18px; }
+      .popup, .image-with-text, .card-body, .curator-comments {
+        padding: 18px 10px !important;
+      }
+      .popup p, .curator-comments { font-size: 16px; }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- header -->
+  <div class="overlay" role="banner">
+    <h1 class="library-title">На рассмотрении:</h1>
+    <div class="filter-bar" role="tablist" aria-label="Фильтр" style="position:relative;">
+      <a href="index.html" class="back-btn" title="Вернуться в библиотеку" style="position:absolute;left:0;top:50%;transform:translateY(-50%);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        Библиотека
+      </a>
+      <div class="platform-buttons">
+        <button type="button" onclick="filterStatus('all')">Все</button>
+        <button type="button" onclick="filterStatus('pending')">Ожидание</button>
+        <button type="button" onclick="filterStatus('review')">На проверке</button>
+        <button type="button" onclick="filterStatus('rejected')">Отклонено</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- grid -->
+  <div class="images-container" id="imagesContainer">
+
+    <!-- Dimension 69 -->
+    <div class="image-with-text"
+         data-status="review" 
+         data-title="Dimension 69"
+         data-image="image/dimension_69.jpg"
+         data-description="Порно-игра в стиле ретро с элементами метроидвании. Исследуйте странный и загадочный мир, полный сюрпризов и пикантных ситуаций."
+         data-page="https://dussop.itch.io/dimension-69"
+         data-comment="*Комментарий отсутствует*"
+         onclick="openGameCard(this)">
+        <div class="status-badge status-review">На проверке</div>
+      <img src="image/dimension_69.jpg" alt="Dimension 69">
+      <div class="card-body">
+        <h3 class="card-title">Dimension 69</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Порно-игра в стиле ретро с элементами метроидвании...</p>
+      </div>
+    </div>
+
+    <!-- Monster XXXperiment -->
+  <div class="image-with-text"
+     data-status="review"
+         data-title="Monster XXXperiment"
+         data-image="image/monster_xxxperiment.jpg"
+         data-description="Эротическая RPG игра с элементами монстродевочек и научных экспериментов. Исследуйте лабораторию, создавайте новых существ и развивайте отношения."
+         data-page="https://astrokaen.itch.io/monster-xxxperiment"
+     data-comment="*Комментарий отсутствует*"
+         onclick="openGameCard(this)">
+    <div class="status-badge status-review">На проверке</div>
+      <img src="image/monster_xxxperiment.jpg" alt="Monster XXXperiment">
+      <div class="card-body">
+        <h3 class="card-title">Monster XXXperiment</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Эротическая RPG игра с элементами монстродевочек и научных экспериментов...</p>
+      </div>
+    </div>
+
+      <!-- Pocket Campfire -->
+      <div class="image-with-text"
+           data-status="review"
+           data-title="Pocket Campfire"
+           data-image="image/pocket_campfire.jpg"
+           data-description="Уютный пиксельный симулятор лагеря с элементами рассказа и лёгкой эротической составляющей. Исследуйте лес, стройте лагерь и знакомьтесь с персонажами у костра."
+        data-page="https://pawpunch.itch.io/pocket-campfire"
+        data-comment="*Комментарий отсутствует*"
+           onclick="openGameCard(this)">
+        <div class="status-badge status-review">На проверке</div>
+        <img src="image/pocket_campfire.jpg" alt="Pocket Campfire">
+        <div class="card-body">
+          <h3 class="card-title">Pocket Campfire</h3>
+          <div class="platforms" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+              <line x1="2" x2="22" y1="20" y2="20"/>
+            </svg>
+          </div>
+          <p class="description">Уютный пиксельный симулятор лагеря с элементами рассказа и лёгкой эротической составляющей...</p>
+        </div>
+      </div>
+
+      <!-- Shosakyu -->
+    <div class="image-with-text"
+         data-status="review"
+         data-title="Shosakyu"
+         data-image="image/shosakyu.jpg"
+         data-description="Визуальная новелла в японском стиле с элементами симулятора свиданий. Погрузитесь в атмосферу японской школы и романтических отношений."
+      data-page="https://ashynyuu.itch.io/shosakyu"
+      data-comment="*Комментарий отсутствует*"
+         onclick="openGameCard(this)">
+      <div class="status-badge status-review">На проверке</div>
+      <img src="image/shosakyu.jpg" alt="Shosakyu">
+      <div class="card-body">
+        <h3 class="card-title">Shosakyu</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Визуальная новелла в японском стиле с элементами симулятора свиданий...</p>
+      </div>
+    </div>
+
+    <!-- Five Nights at Dreams Demo (removed) -->
+
+    <!-- Sarah's House -->
+   <div class="image-with-text"
+      data-status="review"
+         data-title="Sarah's House"
+         data-image="image/sarahs_house.jpg"
+         data-description="Симулятор жизни с элементами романтики. Помогите Саре обустроить свой новый дом и построить отношения с соседями."
+         data-page="https://ace-stud.itch.io/sarahs-house"
+      data-comment="*Комментарий отсутствует*"
+         onclick="openGameCard(this)">
+    <div class="status-badge status-review">На проверке</div>
+      <img src="image/sarahs_house.jpg" alt="Sarah's House">
+      <div class="card-body">
+        <h3 class="card-title">Sarah's House</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Симулятор жизни с элементами романтики...</p>
+      </div>
+    </div>
+
+    <!-- My Maid Dream of Electric Sheep -->
+    <div class="image-with-text"
+      data-status="review"
+      data-title="My Maid Dream of Electric Sheep"
+      data-image="image/maid_dream.jpg"
+      data-description="Научно-фантастическая визуальная новелла о взаимоотношениях человека и андроида-горничной. Исследуйте границы человечности и любви."
+      data-page="https://dodonga.itch.io/my-maid-dream-of-electric-sheep"
+      data-comment="*Комментарий отсутствует*"
+      onclick="openGameCard(this)">
+      <div class="status-badge status-review">На проверке</div>
+      <img src="image/maid_dream.jpg" alt="My Maid Dream of Electric Sheep">
+      <div class="card-body">
+        <h3 class="card-title">My Maid Dream of Electric Sheep</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Научно-фантастическая визуальная новелла о взаимоотношениях человека и андроида-горничной...</p>
+      </div>
+    </div>
+
+    <!-- Gogo Pizza Boy -->
+   <div class="image-with-text"
+      data-status="review"
+         data-title="Gogo Pizza Boy"
+         data-image="image/gogo_pizza_boy.jpg"
+         data-description="Аркадная игра о разносчике пиццы, который попадает в пикантные ситуации во время доставки. Сочетание классического геймплея и эротического контента."
+         data-page="https://spicy-well-studio.itch.io/gogopizzaboy"
+      data-comment="*Комментарий отсутствует*"
+         onclick="openGameCard(this)">
+    <div class="status-badge status-review">На проверке</div>
+      <img src="image/gogo_pizza_boy.jpg" alt="Gogo Pizza Boy">
+      <div class="card-body">
+        <h3 class="card-title">Gogo Pizza Boy</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Аркадная игра о разносчике пиццы, который попадает в пикантные ситуации...</p>
+      </div>
+    </div>
+
+    <!-- PZZLBCMPLX (removed) -->
+
+    <!-- MMA Demo -->
+    <div class="image-with-text"
+         data-status="review"
+         data-title="MMA Demo"
+         data-image="image/mma_demo.jpg"
+         data-description="Симулятор ММА-бойца с элементами романтики и эротики. Тренируйтесь, участвуйте в боях и развивайте отношения с персонажами."
+         data-page="https://wataponno.itch.io/mma-demo"
+         data-comment="*Комментарий отсутствует*"
+         onclick="openGameCard(this)">
+      <div class="status-badge status-review">На проверке</div>
+      <img src="image/mma_demo.jpg" alt="MMA Demo">
+      <div class="card-body">
+        <h3 class="card-title">MMA Demo</h3>
+        <div class="platforms" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="12" x="3" y="4" rx="2" ry="2"/>
+            <line x1="2" x2="22" y1="20" y2="20"/>
+          </svg>
+        </div>
+        <p class="description">Симулятор ММА-бойца с элементами романтики и эротики...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- background controls -->
+  <div class="background-controls" aria-hidden="true">
+    <img src="https://iili.io/KBWAzvf.png" alt="bg icon">
+    <button onclick="changeBackground(1)">1</button>
+    <button onclick="changeBackground(2)">2</button>
+    <button onclick="changeBackground(3)">3</button>
+    <button onclick="changeBackground(4)">4</button>
+  </div>
+
+  <!-- overlay background -->
+  <div class="overlay-background" id="overlayBg" aria-hidden="true"></div>
+
+  <!-- game popup -->
+  <div class="popup" id="gamePopup" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+    <div class="popup-content">
+      <div class="curator-comments" id="curatorComments">
+        <h3>Комментарий куратора</h3>
+        <p></p>
+      </div>
+
+      <div class="game-details">
+        <img id="gameImage" src="" alt="game image">
+        <h2 id="gameTitle"></h2>
+        <p id="gameDescription"></p>
+        <div class="links">
+          <a id="pageLink" class="button" href="#" target="_blank" rel="noopener">Страница игры</a>
+        </div>
+        <button class="close-btn" onclick="closePopup('gamePopup')">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------------- data + helpers ---------------- */
+    function changeBackground(index) {
+      const backgrounds = [
+        'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://iili.io/KBVdvQp.webp)',
+        'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://iili.io/KBXHzAJ.jpg)',
+        'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://iili.io/KBWDQAQ.jpg)',
+        'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(https://iili.io/KBWQttt.jpg)'
+      ];
+      if (index < 1 || index > backgrounds.length) return;
+      document.body.style.opacity = '0';
+      setTimeout(() => {
+        document.body.style.backgroundImage = backgrounds[index-1];
+        document.body.style.opacity = '1';
+      }, 180);
+    }
+
+    /* ---------------- filter by status ---------------- */
+    function filterStatus(status) {
+      const cards = document.querySelectorAll('.image-with-text');
+      cards.forEach(card => {
+        if (status === 'all' || card.dataset.status === status) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    /* ---------------- popup handling ---------------- */
+    function openPopup(id) {
+      const popup = document.getElementById(id);
+      const overlay = document.getElementById('overlayBg');
+      if (!popup) return;
+      popup.style.display = 'block';
+      popup.classList.remove('hide');
+      requestAnimationFrame(() => {
+        popup.classList.add('show');
+        overlay.classList.add('show');
+      });
+    }
+
+    function closePopup(id) {
+      const popup = document.getElementById(id);
+      const overlay = document.getElementById('overlayBg');
+      if (!popup) return;
+      if (popup.classList.contains('hide')) return;
+      popup.classList.remove('show');
+      popup.classList.add('hide');
+      const onAnimEnd = (e) => {
+        if (e.target !== popup) return;
+        popup.removeEventListener('animationend', onAnimEnd);
+        popup.classList.remove('hide');
+        popup.style.display = 'none';
+        const anyOpen = Array.from(document.querySelectorAll('.popup')).some(p => p.classList.contains('show'));
+        if (!anyOpen) overlay.classList.remove('show');
+      };
+      popup.addEventListener('animationend', onAnimEnd);
+    }
+
+    /* ---------------- open game card ---------------- */
+    function openGameCard(el) {
+      const title = el.dataset.title;
+      const image = el.dataset.image;
+      const description = el.dataset.description;
+      const pageLink = el.dataset.page;
+      const comment = el.dataset.comment || "Комментарий отсутствует.";
+
+      document.getElementById('gameTitle').textContent = title;
+      document.getElementById('gameImage').src = image;
+      document.getElementById('gameImage').alt = title;
+      document.getElementById('gameDescription').textContent = description;
+      document.getElementById('pageLink').href = pageLink || '#';
+      document.getElementById('curatorComments').innerHTML =
+        '<h3>Комментарий куратора</h3><p>' + comment + '</p>';
+
+      openPopup('gamePopup');
+    }
+
+    /* ---------------- init ---------------- */
+    window.addEventListener('load', function() {
+      document.getElementById('overlayBg').classList.remove('show');
+    });
+
+    document.getElementById('overlayBg').addEventListener('click', function() {
+      const gamePopup = document.getElementById('gamePopup');
+      if (gamePopup && gamePopup.classList.contains('show')) {
+        closePopup('gamePopup');
+      }
+    });
+  </script>
+</body>
+</html>
