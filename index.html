@@ -108,6 +108,14 @@
       text-decoration: none;
       z-index: 2;
     }
+    /* Active state for filter buttons */
+    .filter-bar button.active,
+    .platform-buttons button.active {
+      box-shadow: 0 0 0 6px rgba(124,77,255,0.12);
+      transform: translateY(-1px);
+      background: linear-gradient(90deg, #2a2340 0%, #7c4dff 100%);
+      color: #fff;
+    }
     .filter-bar button:hover,
     .faq-btn:hover,
     .rating-btn:hover {
@@ -216,15 +224,22 @@
     .background-controls button:hover { transform:scale(1.08); }
 
     /* ---------------- popups ---------------- */
+    /* Overlay uses opacity + visibility to allow smooth transitions when showing/hiding */
     .overlay-background {
       position: fixed; inset:0;
       background: rgba(0,0,0,0.7);
       z-index: 90;
-      display:none;
       opacity: 0;
-      transition: opacity .32s ease;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .32s ease, visibility 0s linear .32s;
     }
-    .overlay-background.show { display:block; opacity:1; }
+    .overlay-background.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
 
     .popup {
       position: fixed;
@@ -413,16 +428,16 @@
         FAQ
       </button>
       <div class="platform-buttons">
-        <button type="button" onclick="filterGames('all')">Все</button>
-        <button type="button" onclick="filterGames('pc')">
+        <button type="button" data-filter="all" onclick="filterGames('all')">Все</button>
+        <button type="button" data-filter="pc" onclick="filterGames('pc')">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal" style="vertical-align:middle;"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
           PC
         </button>
-        <button type="button" onclick="filterGames('mobile')">
+        <button type="button" data-filter="mobile" onclick="filterGames('mobile')">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone" style="vertical-align:middle;"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
           Mobile
         </button>
-        <button type="button" onclick="filterGames('vr')">
+        <button type="button" data-filter="vr" onclick="filterGames('vr')">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rectangle-goggles-icon lucide-rectangle-gогgles" style="vertical-align:middle;"><path d="M20 6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-1.6-.8l-1.6-2.13a1 1 0 0 0-1.6 0L9.6 17.2A2 2 0 0 1 8 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
           VR
         </button>
@@ -461,8 +476,8 @@
       <div class="card-body">
         <h3 class="card-title">LonaRPG</h3>
         <div class="platforms" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
         </div>
         <p class="description">Помогите Лоне в этом жестоком и неумолимом мире и сбегите с острова Ноер...</p>
       </div>
@@ -654,22 +669,22 @@
       </div>
     </div>
 
-    <!-- Kaiju Princess -->
+    <!-- Kaiju Princess 2 -->
     <div class="image-with-text"
-         data-platforms="pc"
+         data-platforms="pc paid"
          data-title="Kaiju Princess"
-         data-image="image_webp/kaiju_princess.webp"
+         data-image="image_webp/kaiju_princess2.webp"
          data-description="Совместная жизнь с принцессой монстров!"
-         data-page="https://ankletaker.itch.io/kaiju-princess"
-         data-download="https://pixeldrain.com/u/rjQX2ZkF"
+         data-page="https://store.steampowered.com/app/2289720/Nenasytnaya_princzessamonstr_mezhzvyozdnoe_puteshestvie"
+         data-download="1"
          data-comment="*Нет комментария*"
          onclick="openGameCard(this)">
-      <img loading="lazy" decoding="async" src="image_webp/kaiju_princess.webp" alt="Kaiju Princess">
+      <img loading="lazy" decoding="async" src="image_webp/kaiju_princess2.webp" alt="Kaiju Princess">
       <div class="card-body">
-        <h3 class="card-title">Kaiju Princess</h3>
+        <h3 class="card-title">Kaiju Princess 2</h3>
         <div class="platforms" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal-icon lucide-laptop-minimal"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dollar-sign-icon lucide-circle-dollar-sign"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
         </div>
         <p class="description">Совместная жизнь с принцессой монстров!</p>
       </div>
@@ -879,6 +894,18 @@
           card.style.display = 'none';
         }
       });
+      // Visual active state for platform buttons
+      try {
+        document.querySelectorAll('.platform-buttons button').forEach(btn => {
+          if (btn.dataset && btn.dataset.filter === platform) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+          } else {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
+          }
+        });
+      } catch(e) {}
     }
 
     /* ---------------- popup handling ---------------- */
@@ -891,6 +918,8 @@
       requestAnimationFrame(() => {
         popup.classList.add('show');
         overlay.classList.add('show');
+        // lock background scroll when any popup is opened
+        try { lockScroll(); } catch(e) {}
       });
     }
     function closePopup(id) {
@@ -907,11 +936,41 @@
         popup.style.display = 'none';
         const anyOpen = Array.from(document.querySelectorAll('.popup')).some(p => p.classList.contains('show'));
         if (!anyOpen) overlay.classList.remove('show');
+        // if no popups left open, unlock scroll
+        try { if(!anyOpen) unlockScroll(); } catch(e) {}
         // Если закрыли downloadInfoPopup, возвращаем интерактивность карточкам
         if (id === 'downloadInfoPopup') setCardsInteractive(true);
       };
       popup.addEventListener('animationend', onAnimEnd);
     }
+
+    // Scroll lock helpers and global close
+    let _prevOverflowBody = null;
+    function lockScroll(){
+      if(_prevOverflowBody !== null) return;
+      _prevOverflowBody = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    function unlockScroll(){
+      if(_prevOverflowBody === null) return;
+      document.body.style.overflow = _prevOverflowBody || '';
+      _prevOverflowBody = null;
+    }
+    function closeAllPopups(){
+      document.querySelectorAll('.popup.show').forEach(p => {
+        // directly hide without animation to ensure fast close
+        p.classList.remove('show');
+        p.style.display = 'none';
+      });
+      const overlay = document.getElementById('overlayBg');
+      if (overlay) overlay.classList.remove('show');
+      unlockScroll();
+      // restore interactivity
+      setCardsInteractive(true);
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape' || e.key === 'Esc') { closeAllPopups(); } });
 
     // Вспомогательная функция для управления интерактивностью карточек
     function setCardsInteractive(enabled) {

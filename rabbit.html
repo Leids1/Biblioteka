@@ -6,6 +6,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="https://iili.io/KClTnwl.png" sizes="128x128">
   <style>
+    /* Стили для toast сообщений */
+    @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(60, 60, 80, 0.95);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 2000;
+      animation: slideIn 0.3s, fadeOut 0.3s 2.7s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Анимация для покупки */
+    @keyframes purchaseSuccess {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .purchase-animation {
+      animation: purchaseSuccess 0.5s ease;
+    }
+
     @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes popupShow { from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
@@ -556,11 +585,27 @@
       z-index: 1;
       animation: rabbit-glow 3.2s linear infinite;
     }
+    /* Скрытый скролл для списка фапа */
+    .fap-list {
+      scrollbar-width: none; /* Firefox */
+    }
+    .fap-list::-webkit-scrollbar { display: none; } /* Chrome/Safari */
     .rabbit-btn:active {
       transform: scale(0.96);
       box-shadow:
         0 0 0 8px #7c4dff77,
         0 0 48px 16px #a259ffcc;
+    }
+    
+    /* Анимация нажатия */
+    @keyframes clickEffect {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    
+    .click-animation {
+      animation: clickEffect 0.15s ease;
     }
     @keyframes rabbit-glow {
       0% {
@@ -622,6 +667,7 @@
         transform: translateY(-110px) scale(0.9);
       }
     }
+    /* Орбита удалена — визуализация автокликера отключена */
 .main-flex {
   display: flex;
   justify-content: center; /* центрируем кролика */
@@ -665,6 +711,31 @@
       flex-direction: column;
       gap: 8px;
       box-shadow: 0 2px 12px #0004;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Затемнение для заблокированного предмета */
+    .shop-item.level-locked {
+      filter: brightness(0.6);
+    }
+
+    /* Стиль для надписи о требовании уровня */
+    .level-requirement {
+      position: absolute;
+      top: 50%;
+      left: -5%;
+      right: -5%;
+      transform: translateY(-50%) rotate(-12deg);
+      background: rgba(124, 77, 255, 0.9);
+      color: white;
+      padding: 8px 0;
+      font-family: 'Rubik Mono One', sans-serif;
+      text-align: center;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 8px #000;
+      pointer-events: none;
+      z-index: 10;
     }
     .shop-item-title {
       font-size: 1.1rem;
@@ -696,6 +767,11 @@
       transition: background 0.18s, color 0.18s, transform 0.12s;
       box-shadow: 0 2px 12px #a259ff44;
       margin-top: 2px;
+      width: 100%;
+      height: 72px; /* Увеличена в два раза */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shop-item-btn:disabled {
       background: #444;
@@ -894,29 +970,30 @@
   <div class="overlay" role="banner">
     <div style="position:relative;width:100%;height:40px;">
       <div class="library-title">Жмякалка</div>
-      <div class="top-back-btn-row" style="height:40px;align-items:flex-end;">
-        <a href="index.html" class="back-btn" title="Назад к играм" style="margin-bottom:2px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="15 18 9 12 15 6"/></svg>
-          Назад
-        </a>
-      </div>
+      <div class="top-back-btn-row" style="height:40px;align-items:flex-end;position:relative;">
+          <a href="index.html" class="back-btn" title="Назад к играм" style="margin-bottom:2px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="15 18 9 12 15 6"/></svg>
+            Назад
+          </a>
+          <!-- moved Code button: placed in the same row, opposite side -->
+          <button id="codeBtn" class="back-btn" title="Ввести код" style="position:absolute;right:0;top:50%;transform:translateY(-50%);margin-bottom:2px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-chevrons-right-left" style="vertical-align:middle;margin-right:6px;">
+              <path d="m20 17-5-5 5-5"/>
+              <path d="m4 17 5-5-5-5"/>
+            </svg>
+            Код
+          </button>
+        </div>
     </div>
     <div class="filter-bar" style="position:relative;">
     </div>
   </div>
 <!-- Кнопка снизу справа -->
 <!-- Кнопка снизу справа -->
- <!-- Кнопка кодов -->
-<button id="codeBtn" class="back-btn" title="Ввести код">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-       viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-       class="lucide lucide-chevrons-right-left">
-    <path d="m20 17-5-5 5-5"/>
-    <path d="m4 17 5-5-5-5"/>
-  </svg>
-  Код
-</button>
+ <!-- Кнопка кодов (перенесена в header top-back-btn-row) -->
 <!-- Попап ввода кода -->
 <div id="codePopup" class="inventory-popup hidden">
   <div class="inventory-content" style="text-align:center;">
@@ -939,34 +1016,106 @@
     <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
   </svg>
 </button>
+<!-- Попап с чит-кодами -->
+<div class="inventory-popup hidden" id="cheatCodesPopup">
+  <div class="inventory-content">
+    <h2 class="inventory-title">Секретные коды</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin:20px 0;">
+      <div class="cheat-code-item">
+        <div class="shop-item-title">MGmoney!</div>
+        <div class="shop-item-desc">Добавляет 1,000,000 кликов</div>
+        <button class="shop-item-btn" onclick="applyCheatCode('MGmoney!')">Активировать</button>
+      </div>
+      <div class="cheat-code-item">
+        <div class="shop-item-title">MGclear!</div>
+        <div class="shop-item-desc">Полный сброс прогресса, опыта и инвентаря</div>
+        <button class="shop-item-btn" onclick="applyCheatCode('MGclear!')">Активировать</button>
+      </div>
+      <div class="cheat-code-item">
+        <div class="shop-item-title">MGall</div>
+        <div class="shop-item-desc">Добавляет семёна в инвентарь</div>
+        <button class="shop-item-btn" onclick="applyCheatCode('MGall')">Активировать</button>
+      </div>
+    </div>
+    <button id="closeCheatCodes" class="inventory-close">Закрыть</button>
+  </div>
+</div>
+
+<!-- Попап покупки объекта фапа -->
+<div class="inventory-popup hidden" id="fapObjectPopup">
+  <div class="inventory-content">
+    <h2 class="inventory-title">Магазин объектов фапа</h2>
+    <div class="fap-list" style="display:flex;flex-direction:column;gap:12px;margin:20px 0;max-height:55vh;overflow-y:auto;padding-right:6px;">
+      <div class="fap-item shop-item" style="margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <img loading="lazy" decoding="async" src="image_webp/F1.webp" alt="F1" style="width:120px;height:120px;object-fit:contain;">
+        <div style="text-align:center;">
+          <div class="shop-item-title">Лот F1</div>
+          <div class="shop-item-desc">Описание лота F1</div>
+          <div class="shop-item-price">💰 100,000 кликов</div>
+        </div>
+        <button class="shop-item-btn" onclick="buyFapObject('f1', 100000)">Купить</button>
+      </div>
+      <div class="fap-item shop-item" style="margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <img loading="lazy" decoding="async" src="image_webp/F2.webp" alt="F2" style="width:120px;height:120px;object-fit:contain;">
+        <div style="text-align:center;">
+          <div class="shop-item-title">Лот F2</div>
+          <div class="shop-item-desc">Описание лота F2</div>
+          <div class="shop-item-price">💰 200,000 кликов</div>
+        </div>
+        <button class="shop-item-btn" onclick="buyFapObject('f2', 200000)">Купить</button>
+      </div>
+      <div class="fap-item shop-item" style="margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <img loading="lazy" decoding="async" src="image_webp/F3.webp" alt="F3" style="width:120px;height:120px;object-fit:contain;">
+        <div style="text-align:center;">
+          <div class="shop-item-title">Лот F3</div>
+          <div class="shop-item-desc">Описание лота F3</div>
+          <div class="shop-item-price">💰 1,000,000 кликов</div>
+        </div>
+        <button class="shop-item-btn" onclick="buyFapObject('f3', 1000000)">Купить</button>
+      </div>
+      <div class="fap-item shop-item" style="margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <img loading="lazy" decoding="async" src="image_webp/F4.webp" alt="F4" style="width:120px;height:120px;object-fit:contain;">
+        <div style="text-align:center;">
+          <div class="shop-item-title">Лот F4</div>
+          <div class="shop-item-desc">Описание лота F4</div>
+          <div class="shop-item-price">💰 5,000,000 кликов</div>
+        </div>
+        <button class="shop-item-btn" onclick="buyFapObject('f4', 5000000)">Купить</button>
+      </div>
+    </div>
+    <button id="closeFapPopup" class="inventory-close">Закрыть</button>
+  </div>
+</div>
+
 <!-- Попап казино -->
-<div class="casino-popup hidden">
-  <div class="casino-content">
-    <h2>🎰 Казино — Кейсы</h2>
-    <div class="cases">
+<!-- Попап казино: стилизуем как инвентарь/фап -->
+<div id="casinoPopup" class="inventory-popup hidden">
+  <div class="inventory-content">
+    <h2 class="inventory-title">🎰 Казино — Кейсы</h2>
+    <div class="cases" style="display:flex;gap:12px;align-items:flex-start;justify-content:center;">
       <!-- Кейс 1 -->
-      <div class="case">
-        <div class="case-title">Кейс 1</div>
+      <div class="case" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <img loading="lazy" decoding="async" src="image_webp/C1.webp" alt="Кейс 1" style="width:100px;height:100px;object-fit:contain;">
         <div class="case-price">💰 100,000 кликов</div>
-        <button class="buy-button" data-price="100000">Купить</button>
+        <button class="shop-item-btn" data-price="100000" data-type="c1">Купить</button>
       </div>
 
       <!-- Кейс 2 -->
-      <div class="case">
-        <div class="case-title">Кейс 2</div>
+      <div class="case" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <img loading="lazy" decoding="async" src="image_webp/C2.webp" alt="Кейс 2" style="width:100px;height:100px;object-fit:contain;">
         <div class="case-price">💰 1,000,000 кликов</div>
-        <button class="buy-button" data-price="1000000">Купить</button>
+        <button class="shop-item-btn" data-price="1000000" data-type="c2">Купить</button>
       </div>
 
       <!-- Кейс 3 -->
-      <div class="case">
-        <div class="case-title">Кейс 3</div>
+      <div class="case" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <img loading="lazy" decoding="async" src="image_webp/C3.webp" alt="Кейс 3" style="width:100px;height:100px;object-fit:contain;">
         <div class="case-price">💰 10,000,000 кликов</div>
-        <button class="buy-button" data-price="10000000">Купить</button>
+        <button class="shop-item-btn" data-price="10000000" data-type="c3">Купить</button>
       </div>
     </div>
 
-    <button class="close-casino">Закрыть</button>
+    <button class="inventory-close">Закрыть</button>
   </div>
 </div>
 
@@ -1038,9 +1187,22 @@
           <div class="shop-item-price">Цена: <span id="shopPriceSecondHand">1000</span> кликов</div>
           <button class="shop-item-btn" id="buySecondHandBtn">Купить</button>
           <div class="shop-item-desc" id="secondHandLevelDesc">Уровень: <span id="secondHandLevel">0</span></div>
+          <!-- Подсказка, показывается когда предмет заблокирован по уровню -->
+
         </div>
       </div>
     </div>
+<button class="landmark-button buy-fap-btn" style="bottom: 160px;">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+       viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.91 8.84 8.56 2.23a1.93 1.93 0 0 0-1.81 0L3.1 4.13a2.12 2.12 0 0 0-.05 3.69l12.22 6.93a2 2 0 0 0 1.94 0L21 12.51a2.12 2.12 0 0 0-.09-3.67Z"/>
+    <path d="m3.09 8.84 12.35-6.61a1.93 1.93 0 0 1 1.81 0l3.65 1.9a2.12 2.12 0 0 1 .1 3.69L8.73 14.75a2 2 0 0 1-1.94 0L3 12.51a2.12 2.12 0 0 1 .09-3.67Z"/>
+    <line x1="12" y1="22" x2="12" y2="13"/>
+    <path d="M20 13.5v3.37a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13.5"/>
+  </svg>
+</button>
+
 <button class="landmark-button">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
@@ -1093,6 +1255,25 @@ let inventory = [];
   inventoryPopup.classList.remove('hidden');
 });
 
+// --- Казино: открыть/закрыть попап ---
+const casinoBtn = document.querySelector('.landmark-button:not(.buy-fap-btn)');
+const casinoPopup = document.getElementById('casinoPopup');
+const closeCasinoBtn = casinoPopup ? casinoPopup.querySelector('.inventory-close') : null;
+if (casinoBtn) {
+  casinoBtn.addEventListener('click', () => {
+    if (casinoPopup) casinoPopup.classList.remove('hidden');
+  });
+}
+if (closeCasinoBtn && casinoPopup) {
+  closeCasinoBtn.addEventListener('click', () => {
+    casinoPopup.classList.add('hidden');
+  });
+  // Закрыть при клике вне контента
+  casinoPopup.addEventListener('click', (e) => {
+    if (e.target === casinoPopup) casinoPopup.classList.add('hidden');
+  });
+}
+
 closeInventory.addEventListener('click', () => {
   inventoryPopup.classList.add('hidden');
 });
@@ -1109,6 +1290,7 @@ inventoryPopup.addEventListener('click', (e) => {
     try {
       const data = {
         clicks,
+        // store base levels and multiplier levels; clickPower can be recalculated
         clickPower,
         shopPricePlus1,
         plus1Level,
@@ -1141,10 +1323,10 @@ inventoryPopup.addEventListener('click', (e) => {
       if (typeof obj.clicks === 'number') clicks = obj.clicks;
       if (typeof obj.clickPower === 'number') clickPower = obj.clickPower;
       if (typeof obj.shopPricePlus1 === 'number') shopPricePlus1 = obj.shopPricePlus1;
-      if (typeof obj.plus1Level === 'number') plus1Level = obj.plus1Level;
+  if (typeof obj.plus1Level === 'number') plus1Level = obj.plus1Level;
       if (typeof obj.autoclickLevel === 'number') autoclickLevel = obj.autoclickLevel;
       if (typeof obj.autoclickPrice === 'number') autoclickPrice = obj.autoclickPrice;
-      if (typeof obj.secondHandLevel === 'number') secondHandLevel = obj.secondHandLevel;
+  if (typeof obj.secondHandLevel === 'number') secondHandLevel = obj.secondHandLevel;
       if (typeof obj.secondHandPrice === 'number') secondHandPrice = obj.secondHandPrice;
       if (Array.isArray(obj.inventory)) inventory = obj.inventory;
       // Восстановление уровня/опыта, если сохранены
@@ -1162,6 +1344,8 @@ inventoryPopup.addEventListener('click', (e) => {
       // короткий лог для отладки
       console.debug('Progress loaded', { clicks, level, exp, expToNext });
       updateInventoryUI();
+  // пересчитаем силу клика после загрузки уровней
+  try { recalcClickPower(); } catch(e) {}
       // Сохраняем обратно (миграция/доп. поля) чтобы localStorage содержал актуальную структуру
       saveProgress();
   } catch(e) {
@@ -1172,7 +1356,26 @@ inventoryPopup.addEventListener('click', (e) => {
   // ...existing code variables...
   let clicks = 0;
   let clickPower = 1;
+  // Новая логика: базовое значение клика зависит от уровня "опытности владения" (plus1Level)
+  // и множится на 1.5^secondHandLevel. Используйте recalcClickPower() чтобы пересчитать.
   function round5(n) { return Math.round(n / 5) * 5; }
+
+  // Функция для показа toast сообщений
+  const toast = (msg) => {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  };
+
+  // Улучшенная функция форматирования чисел с суффиксами
+  function formatDisplay(n) {
+    if (typeof n !== 'number' || !isFinite(n)) return String(n);
+    if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+    return String(Math.trunc(n));
+  }
   let shopPricePlus1 = round5(100 * 0.75);
   let plus1Level = 0;
   const buyPlus1Btn = document.getElementById('buyPlus1Btn');
@@ -1189,6 +1392,7 @@ inventoryPopup.addEventListener('click', (e) => {
   const buySecondHandBtn = document.getElementById('buySecondHandBtn');
   const shopPriceSecondHand = document.getElementById('shopPriceSecondHand');
   const secondHandLevelDesc = document.getElementById('secondHandLevel');
+  const secondHandHint = document.getElementById('secondHandHint');
   let level = 0;
   let exp = 0;
   let expToNext = 50;
@@ -1198,10 +1402,21 @@ inventoryPopup.addEventListener('click', (e) => {
 
 function updateLevelUI() {
   levelLabel.textContent = `Ур. ${level}`;
-  expLabel.textContent = `${exp.toFixed(1)} / ${expToNext}`;
+  expLabel.textContent = `${formatDisplay(exp, 1)} / ${formatDisplay(expToNext, 0)}`;
   let percent = Math.min(100, (exp / expToNext) * 100);
   levelProgressBar.style.width = percent + '%';
 }
+
+  // Пересчитать clickPower на основе уровней
+  function recalcClickPower() {
+    // базовое количество кликов за клик = 1 + уровни опытности (plus1Level)
+    const base = 1 + (Number(plus1Level) || 0);
+    // множитель второй руки: 1.5 ^ secondHandLevel
+    const mult = Math.pow(1.5, (Number(secondHandLevel) || 0));
+    clickPower = base * mult;
+    // не округляем намеренно — сохраняем дробную точность (например 7.5)
+    return clickPower;
+  }
 
 // Автосохранение каждые 5 секунд
 setInterval(() => {
@@ -1209,18 +1424,39 @@ setInterval(() => {
 }, 5000);
   // ...existing code...
   function updateShopButton() {
-  buyPlus1Btn.disabled = clicks < shopPricePlus1;
-  shopPriceEl.textContent = shopPricePlus1;
-  plus1LevelDesc.textContent = plus1Level;
-  buyAutoclickBtn.disabled = clicks < autoclickPrice;
-  shopPriceAutoclick.textContent = autoclickPrice;
-  autoclickLevelDesc.textContent = autoclickLevel;
-  buySecondHandBtn.disabled = clicks < secondHandPrice;
-  shopPriceSecondHand.textContent = secondHandPrice;
-  secondHandLevelDesc.textContent = secondHandLevel;
-  counter.textContent = clicks;
-  // updateOrbit(); // удалено: арбита больше не используется
-}
+    buyPlus1Btn.disabled = clicks < shopPricePlus1;
+    shopPriceEl.textContent = formatDisplay(shopPricePlus1, 0);
+    plus1LevelDesc.textContent = plus1Level;
+    buyAutoclickBtn.disabled = clicks < autoclickPrice;
+    shopPriceAutoclick.textContent = formatDisplay(autoclickPrice, 0);
+    autoclickLevelDesc.textContent = autoclickLevel;
+    
+    // Обработка второй руки
+    const isSecondHandLocked = level < 2;
+    buySecondHandBtn.disabled = clicks < secondHandPrice || isSecondHandLocked;
+    shopPriceSecondHand.textContent = formatDisplay(secondHandPrice, 0);
+    secondHandLevelDesc.textContent = secondHandLevel;
+    
+    // Обновление визуального стиля блокировки
+    const shopItemSecondHand = document.getElementById('shopItemSecondHand');
+    if (isSecondHandLocked) {
+      shopItemSecondHand.classList.add('level-locked');
+      // Проверяем существование надписи о требовании уровня
+      let requirement = shopItemSecondHand.querySelector('.level-requirement');
+      if (!requirement) {
+        requirement = document.createElement('div');
+        requirement.className = 'level-requirement';
+        requirement.textContent = 'ДОСТУПНО С УР.2';
+        shopItemSecondHand.appendChild(requirement);
+      }
+    } else {
+      shopItemSecondHand.classList.remove('level-locked');
+      const requirement = shopItemSecondHand.querySelector('.level-requirement');
+      if (requirement) requirement.remove();
+    }
+    
+    counter.textContent = formatDisplay(clicks, 2);
+  }
 function updateInventoryUI() {
   const slots = document.querySelectorAll('.inventory-slot');
   slots.forEach((slot, i) => {
@@ -1293,7 +1529,7 @@ function updateInventoryUI() {
     // Создаём элемент
     const plus = document.createElement('div');
     plus.className = 'floating-plus';
-    plus.textContent = `+${amount}`;
+  plus.textContent = `+${formatDisplay(amount, 2)}`;
     plus.style.left = relX + 'px';
     plus.style.top = relY + 'px';
     plus.style.fontSize = fontSize + 'px';
@@ -1307,33 +1543,35 @@ function updateInventoryUI() {
 
   buyPlus1Btn.addEventListener('click', function() {
     if (clicks < shopPricePlus1) return;
-    clicks -= shopPricePlus1;
-    counter.textContent = clicks;
-    clickPower += 1;
+  clicks -= shopPricePlus1;
+  counter.textContent = formatDisplay(clicks, 2);
     plus1Level++;
     if (shopPricePlus1 === round5(100 * 0.75)) {
       shopPricePlus1 = round5(500 * 0.75);
     } else {
       shopPricePlus1 = round5(shopPricePlus1 * 1.8);
     }
+    // пересчёт силы клика с учётом новых уровней
+    recalcClickPower();
     updateShopButton();
     saveProgress();
   });
 
   buyAutoclickBtn.addEventListener('click', function() {
     if (clicks < autoclickPrice) return;
-    clicks -= autoclickPrice;
-    counter.textContent = clicks;
+  clicks -= autoclickPrice;
+  counter.textContent = formatDisplay(clicks, 2);
     autoclickLevel++;
     autoclickPrice = round5(autoclickPrice * 1.6);
     updateShopButton();
     saveProgress();
+  // визуальная орбита была удалена — ничего не делаем
     if (autoclickLevel === 1) {
       autoclickInterval = setInterval(() => {
-        if (autoclickLevel > 0) {
-          clicks += autoclickLevel;
-          counter.textContent = clicks;
-          updateShopButton();
+      if (autoclickLevel > 0) {
+        clicks += autoclickLevel;
+        counter.textContent = formatDisplay(clicks, 2);
+        updateShopButton();
           for (let i = 0; i < autoclickLevel; i++) {
             showFloatingPlus(1);
           }
@@ -1349,7 +1587,8 @@ function updateInventoryUI() {
     clicks -= secondHandPrice;
     secondHandLevel++;
     secondHandPrice = round5(secondHandPrice * 1.8);
-    clickPower = Math.round(clickPower * 1.5);
+    // Пересчитать силу клика: постоянное умножение сохраняется в secondHandLevel
+    recalcClickPower();
     updateShopButton();
     saveProgress();
   });
@@ -1409,7 +1648,7 @@ rabbitBtn.addEventListener('click', function(e) {
     expToNext += 100;
   }
   updateLevelUI();
-  counter.textContent = clicks;
+  counter.textContent = formatDisplay(clicks, 2);
   updateShopButton();
   // updateOrbit();
   showFloatingPlus(clickPower);
@@ -1417,23 +1656,40 @@ rabbitBtn.addEventListener('click', function(e) {
 });
 
 
-  // --- Восстановление автокликера после загрузки, если был куплен ---
-  if (autoclickLevel > 0 && !autoclickInterval) {
-    autoclickInterval = setInterval(() => {
-      if (autoclickLevel > 0) {
-        clicks += autoclickLevel;
-        counter.textContent = clicks;
-        updateShopButton();
-        for (let i = 0; i < autoclickLevel; i++) {
-          showFloatingPlus(1);
-        }
-        saveProgress();
-      }
-    }, 1000);
-  }
+  // Управление прокруткой фона
+function disableScroll() {
+  document.body.style.overflow = 'hidden';
+}
 
-  // Инициализация
-  // Загружаем прогресс (если есть), затем обновляем UI и сохраняем мигрированную структуру
+function enableScroll() {
+  document.body.style.overflow = '';
+}
+
+// Функция проверки открытых модалок
+function isAnyModalOpen() {
+  return [inventoryPopup, fapObjectPopup, casinoPopup, codePopup, cheatCodesPopup].some(
+    popup => popup && !popup.classList.contains('hidden')
+  );
+}
+
+// Обновляем обработчики открытия/закрытия для всех модалок
+function updateModalHandlers(modal, openTrigger, closeTrigger) {
+  if (modal && openTrigger) {
+    openTrigger.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+      disableScroll();
+    });
+  }
+  if (modal && closeTrigger) {
+    closeTrigger.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      if (!isAnyModalOpen()) enableScroll();
+    });
+  }
+}
+
+// Инициализация
+// Загружаем прогресс (если есть), затем обновляем UI и сохраняем мигрированную структуру
   loadProgress();
   updateLevelUI();
   counter.textContent = clicks;
@@ -1443,16 +1699,112 @@ rabbitBtn.addEventListener('click', function(e) {
   // сохраняем сразу после загрузки чтобы гарантировать актуальность localStorage
   saveProgress();
 
-  // --- Переворот ss.png по вертикали каждые 0.5 секунды ---
-  let flipped = false;
-  setInterval(() => {
-    const imgs = document.querySelectorAll('.orbit-item img[src="image/ss.png"]');
-    imgs.forEach(img => {
-      img.style.transform = flipped ? '' : 'scaleY(-1)';
+  // --- Восстановление автокликера после загрузки, если был куплен ---
+  if (autoclickLevel > 0 && !autoclickInterval) {
+    autoclickInterval = setInterval(() => {
+    if (autoclickLevel > 0) {
+      clicks += autoclickLevel;
+      counter.textContent = formatDisplay(clicks, 2);
+        // обновление UI но НЕ пересоздавать орбиту
+        // updateShopButton(); // оставляем без вызова, чтобы не пересоздавать орбиту часто
+        for (let i = 0; i < autoclickLevel; i++) {
+          showFloatingPlus(1);
+        }
+        saveProgress();
+      }
+    }, 1000);
+    // визуальная орбита удалена
+  }
+
+  // Визуальная орбита удалена — код инициализации/отрисовки орбиты удалён
+
+  // --- Попап покупки объекта фапа ---
+const fapObjectPopup = document.getElementById('fapObjectPopup');
+const closeFapPopup = document.getElementById('closeFapPopup');
+const buyFapBtn = document.querySelector('.buy-fap-btn');
+
+buyFapBtn.addEventListener('click', () => {
+  fapObjectPopup.classList.remove('hidden');
+});
+
+closeFapPopup.addEventListener('click', () => {
+  fapObjectPopup.classList.add('hidden');
+});
+
+// Закрытие по клику вне контента
+fapObjectPopup.addEventListener('click', (e) => {
+  if (e.target === fapObjectPopup) {
+    fapObjectPopup.classList.add('hidden');
+  }
+});
+
+function buyFapObject(type, price) {
+  if (clicks < price) {
+    toast('Недостаточно кликов!');
+    return;
+  }
+  
+  // Показываем подтверждение покупки
+  if (!confirm(`Купить предмет за ${formatDisplay(price)} кликов?`)) {
+    return;
+  }
+  
+  clicks -= price;
+  counter.textContent = formatDisplay(clicks, 2);
+  updateShopButton();
+  saveProgress();
+  
+  const messages = {
+    'doll': 'Тренировочная кукла куплена!',
+    'pro': 'Продвинутый мастурбатор куплен!',
+    'f1': 'Лот F1 куплен!',
+    'f2': 'Лот F2 куплен!',
+    'f3': 'Лот F3 куплен!',
+    'f4': 'Лот F4 куплен!'
+  };
+
+  // Анимация покупки
+  const item = document.querySelector(`.fap-item[data-type="${type}"]`);
+  if (item) {
+    item.classList.add('purchase-animation');
+    setTimeout(() => item.classList.remove('purchase-animation'), 500);
+  }
+
+  toast(messages[type] || 'Покупка успешна!');
+  fapObjectPopup.classList.add('hidden');
+}
+
+// Покупка кейса в казино (отдельный обработчик, чтобы закрывать казино и показывать другое сообщение)
+function buyCase(type, price) {
+  if (clicks < price) {
+    alert('Недостаточно кликов!');
+    return;
+  }
+  clicks -= price;
+  counter.textContent = formatDisplay(clicks, 2);
+  updateShopButton();
+  saveProgress();
+  const messages = {
+    'c1': 'Вы открыли Кейс 1! Найдено: ...',
+    'c2': 'Вы открыли Кейс 2! Найдено: ...',
+    'c3': 'Вы открыли Кейс 3! Найдено: ...'
+  };
+  alert(messages[type] || 'Кейс открыт!');
+  if (casinoPopup) casinoPopup.classList.add('hidden');
+}
+
+// Навесим обработчики на кнопки покупки кейсов (если попап есть)
+if (document.getElementById('casinoPopup')) {
+  document.querySelectorAll('#casinoPopup .shop-item-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const price = Number(btn.dataset.price) || 0;
+      const type = btn.dataset.type || 'c1';
+      buyCase(type, price);
     });
-    flipped = !flipped;
-  }, 250);
-  // --- Кнопка кодов ---
+  });
+}
+
+// --- Кнопка кодов ---
 const codeBtn = document.getElementById('codeBtn');
 const codePopup = document.getElementById('codePopup');
 const closeCodePopup = document.getElementById('closeCodePopup');
@@ -1467,39 +1819,54 @@ closeCodePopup.addEventListener('click', () => {
   codePopup.classList.add('hidden');
 });
 
-applyCode.addEventListener('click', () => {
-  const code = codeInput.value.trim();
-  let codeUsed = false;
+// Попап с чит-кодами
+const cheatCodesPopup = document.getElementById('cheatCodesPopup');
+const closeCheatCodes = document.getElementById('closeCheatCodes');
+
+closeCheatCodes.addEventListener('click', () => {
+  cheatCodesPopup.classList.add('hidden');
+});
+
+cheatCodesPopup.addEventListener('click', (e) => {
+  if (e.target === cheatCodesPopup) {
+    cheatCodesPopup.classList.add('hidden');
+  }
+});
+
+function applyCheatCode(code) {
   if (code === "MGclear!") {
-    // полный сброс
+    if (!confirm('Вы уверены? Весь прогресс будет сброшен!')) return;
+    // полный сброс всего прогресса
     clicks = 0;
     clickPower = 1;
     shopPricePlus1 = round5(100 * 0.75);
     plus1Level = 0;
     autoclickLevel = 0;
+    if (autoclickInterval) { clearInterval(autoclickInterval); autoclickInterval = null; }
+  // визуальная орбита удалена — больше ничего делать не нужно
     autoclickPrice = round5(555 * 0.75);
     secondHandLevel = 0;
     secondHandPrice = round5(1000 * 0.75);
-    // ЧИСТИМ ИНВЕНТАРЬ + UI
+    level = 0;
+    exp = 0;
+    expToNext = 50;
+    updateLevelUI();
     inventory = [];
     updateInventoryUI();
-    // очищаем сохранение и пересохраняем чистое состояние (по желанию можно не сохранять)
     localStorage.removeItem('rabbitClickerProgress');
     saveProgress();
     updateShopButton();
-    // updateOrbit();
-    alert("Прогресс и инвентарь сброшены!");
-    codeUsed = true;
+    alert("Весь прогресс полностью сброшен!");
   }
-  if (code === "MGmoney!") {
+  else if (code === "MGmoney!") {
     clicks += 1000000;
+    exp += 1000; // добавляем опыт
+    updateLevelUI();
     updateShopButton();
     saveProgress();
-    alert("Добавлено 1 000 000 кликов!");
-    codeUsed = true;
+    alert("Добавлено 1 000 000 кликов и +1000 опыта!");
   }
-  if (code === "MGall") {
-    // Просто добавляет 1 семёна в первый свободный слот
+  else if (code === "MGall") {
     let added = false;
     for (let i = 0; i < 8; i++) {
       if (!inventory[i]) {
@@ -1511,10 +1878,13 @@ applyCode.addEventListener('click', () => {
     updateInventoryUI();
     saveProgress();
     alert(added ? "Семён добавлен в инвентарь!" : "Нет свободного места для семёна.");
-    codeUsed = true;
   }
-  // После любого кода закрываем попап и очищаем поле
-  if (codeUsed) {
+}
+
+applyCode.addEventListener('click', () => {
+  const code = codeInput.value.trim();
+  if (code === "ДаняЛюбитФурри24/7") {
+    cheatCodesPopup.classList.remove('hidden');
     codePopup.classList.add('hidden');
     codeInput.value = '';
   }
@@ -1652,6 +2022,29 @@ craftBtn.addEventListener('click', function() {
   updateInventoryUI();
   saveProgress();
   alert('Создан Семёновый артефакт! Активируйте его двойным щелчком в инвентаре.');
+});
+
+// Закрытие модалок по Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    // Закрываем все модальные окна
+    [inventoryPopup, fapObjectPopup, casinoPopup, codePopup, cheatCodesPopup].forEach(popup => {
+      if (popup && !popup.classList.contains('hidden')) {
+        popup.classList.add('hidden');
+      }
+    });
+  }
+});
+
+// Закрытие по клику вне модалки (overlay)
+[inventoryPopup, fapObjectPopup, casinoPopup, codePopup, cheatCodesPopup].forEach(popup => {
+  if (popup) {
+    popup.addEventListener('click', (e) => {
+      if (e.target === popup) {
+        popup.classList.add('hidden');
+      }
+    });
+  }
 });
 
 // --- Активация артефакта двойным кликом ---
